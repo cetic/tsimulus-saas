@@ -5,10 +5,7 @@ object Dependencies {
   object Version {
     val akka = "2.5.13"
   }
-
-  lazy val frontend = common ++ webjars ++ tests
-  lazy val backend = common ++ tsimulus ++ tests
-
+  
   val common = Seq(
     "com.typesafe.akka" %% "akka-actor" % Version.akka,
     "com.typesafe.akka" %% "akka-cluster" % Version.akka,

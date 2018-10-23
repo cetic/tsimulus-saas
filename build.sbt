@@ -1,15 +1,15 @@
-import NativePackagerHelper._
-
 val commonSettings = Seq(
   organization := "cetic",
   version := "0.0.1",
-  scalaVersion := "2.11.7",
-  
+  scalaVersion := "2.11.7"
+)
+/*
   // git info
   git.formattedShaVersion := git.gitHeadCommit.value map { sha =>
 			s"$sha".substring(0, 8)
   },
   // build info
+
   buildInfoPackage := "meta",
   buildInfoOptions += BuildInfoOption.ToJson,
   buildInfoKeys := Seq[BuildInfoKey](
@@ -25,14 +25,14 @@ val commonSettings = Seq(
   //JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 )
 
+*/
+lazy val backend = project
+
 lazy val root = (project in file("."))
   .settings(
-    name := "play-akka-cluster"
+    name := "tsimulus-saas"
   )
-  .aggregate(backend)
-
-lazy val backend = project in file("backend")
-    
+  
 //
 // Scala Compiler Options
 // If this project is only a subproject, add these to a common project setting.

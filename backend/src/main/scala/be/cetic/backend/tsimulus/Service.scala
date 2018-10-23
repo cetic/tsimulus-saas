@@ -1,4 +1,4 @@
-package backend.tsimulus
+package be.cetic.backend.tsimulus
 
 import akka.actor._
 import akka.routing.RoundRobinPool

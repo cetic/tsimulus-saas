@@ -1,8 +1,10 @@
-package backend
+package be.cetic.backend
 
 import akka.actor._
 import com.typesafe.config.ConfigFactory
 import backend.tsimulus._
+import be.cetic.backend.tsimulus.TsimulusBackend
+
 import scala.collection.JavaConversions._
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration

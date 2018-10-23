@@ -7,7 +7,7 @@ object Dependencies {
   }
 
   lazy val frontend = common ++ webjars ++ tests
-  lazy val backend = common ++ metrics ++ tsimulus ++ tests
+  lazy val backend = common ++ tsimulus ++ tests
 
   val common = Seq(
     "com.typesafe.akka" %% "akka-actor" % Version.akka,

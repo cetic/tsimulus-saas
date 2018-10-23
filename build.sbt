@@ -29,56 +29,10 @@ lazy val root = (project in file("."))
   .settings(
     name := "play-akka-cluster"
   )
-  .aggregate(api, frontend, backend)
-  
-  
-lazy val frontend = (project in file("frontend"))
-    .enablePlugins(PlayScala, BuildInfoPlugin, JavaAppPackaging, SwaggerPlugin, DockerPlugin, GitVersioning)
-    .settings(
-        name := "tsimulus-cluster-play-frontend",
-        libraryDependencies ++= (Dependencies.frontend  ++ Seq(filters, cache)),
-        pipelineStages := Seq(rjs, digest, gzip),
-        RjsKeys.paths += ("jsRoutes" -> ("/jsroutes" -> "empty:")),
-        javaOptions ++= Seq(
-            "-Djava.library.path=" + (baseDirectory.value.getParentFile / "backend" / "sigar" ).getAbsolutePath,
-            "-Xms128m", "-Xmx1024m"),
-        fork in run := true,
-        mappings in Universal ++= directory(baseDirectory.value.getParentFile / "backend" / "sigar"),
-        bashScriptExtraDefines ++= Seq(
-          """declare -r sigar_dir="$(realpath "${app_home}/../sigar")"""",
-          """addJava "-Djava.library.path=${sigar_dir}""""
-        ),
-		swaggerDomainNameSpaces := Seq("models"),
-		//swaggerRoutesFile := (baseDirectory.value.getParentFile / "frontend" / "conf" / "routes" ).getAbsolutePath,
-        commonSettings
-    ).dependsOn(api)
+  .aggregate(backend)
 
-lazy val backend = (project in file("backend"))
-    .enablePlugins(BuildInfoPlugin, JavaAppPackaging, DockerPlugin, GitVersioning)
-    .settings(
-        name := "tsimulus-cluster-akka-backend",
-        libraryDependencies ++= Dependencies.backend,
-        javaOptions ++= Seq(
-            "-Djava.library.path=" + (baseDirectory.value / "sigar").getAbsolutePath,
-            "-Xms128m", "-Xmx1024m"),
-        // this enables custom javaOptions
-        fork in run := true,
-        mappings in Universal ++= directory(baseDirectory.value / "sigar"),
-        bashScriptExtraDefines ++= Seq(
-          """declare -r sigar_dir="$(realpath "${app_home}/../sigar")"""",
-          """addJava "-Djava.library.path=${sigar_dir}""""
-        ),
-        commonSettings
-    ).dependsOn(api)
+lazy val backend = project in file("backend")
     
-lazy val api = (project in file("api"))
-    .enablePlugins(BuildInfoPlugin)
-    .settings(
-        name := "cluster-api",
-        libraryDependencies ++= Dependencies.backend,
-        commonSettings
-    )
-
 //
 // Scala Compiler Options
 // If this project is only a subproject, add these to a common project setting.

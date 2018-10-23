@@ -1,0 +1,36 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: tsimulus-cluster-akka-backend
+  annotations:
+    openshift.io/image.insecureRepository: "true"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: tsimulus-cluster-akka-backend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: tsimulus-cluster-akka-backend
+    spec:
+      containers:
+      - image: nexus.ext.cetic.be:8083/cetic/tsimulus-cluster-akka-backend
+        imagePullPolicy: IfNotPresent
+        name: tsimulus-cluster-akka-backend
+        env:
+          - name: HOSTNAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: status.podIP
+        ports:
+        - name: remoting
+          containerPort: 2551
+      status:
+        dockerImageRepository: nexus.ext.cetic.be:8083

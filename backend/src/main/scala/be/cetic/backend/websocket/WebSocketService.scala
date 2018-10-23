@@ -1,34 +1,41 @@
 package be.cetic.backend.websocket
 
-import java.util.UUID
-
 import akka.actor.ActorSystem
-import akka.http.scaladsl.server.Directives.{handleWebSocketMessages, path}
+import akka.http.scaladsl.server.Directives.{handleWebSocketMessages, path, _}
 import akka.http.scaladsl.server.Route
-import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
+import akka.util.Timeout
+import be.cetic.backend.websocket.WebsocketFactory.WsUnavailable
+
+import scala.concurrent.ExecutionContextExecutor
+import scala.concurrent.duration._
 
 trait WebSocketService {
   implicit val materializer: ActorMaterializer
   implicit val system: ActorSystem
-
-  val wsMap = Map[UUID, WebsocketFactory]()
-
+  implicit val dispatcher: ExecutionContextExecutor = system.dispatcher
+  implicit val timeout: Timeout = Timeout(20.seconds)
+  private val wsFactory = new WebsocketFactory
 
   lazy val webSocketRoute: Route =
     pathPrefix("ws") {
       pathEnd {
         post {
           complete {
-            val uuid = UUID.randomUUID()
-            wsMap.updated(uuid, WebsocketFactory())
-            s"ws/$uuid"
+            wsFactory
+              .createWsEntry(60.seconds)
+              .toString
           }
         }
-      }
+      } ~
+        path(JavaUUID) { wsId =>
+          val flow = wsFactory.makeWsFlow(wsId)
+          println("connection")
+          flow.map(handleWebSocketMessages)
+            .getOrElse {
+              get(complete(WsUnavailable.toString))
+            }
+        }
     }
-  path("ws" / JavaUUID) { uuid =>
-    handleWebSocketMessages(wsMap(uuid).webSocketFlow)
-  }
-
 }
+

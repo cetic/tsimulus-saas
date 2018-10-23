@@ -4,6 +4,10 @@ name := "tsimulus-saas-backend"
 
 version:= "0.1"
 
+
+mainClass in(Compile, run) := Some("be.cetic.backend.Backend")
+mainClass in(Compile, packageBin) := Some("be.cetic.backend.Backend")
+
 libraryDependencies := Seq(
   "com.github.scopt" %% "scopt" % "3.5.0",
   "io.spray" %%  "spray-json" % "1.3.2",

@@ -6,7 +6,7 @@ project/target
 .cache
 .cache-main
 .idea/
-/bin/
+*/bin/
 
 .vagrant
 provisioning/roles/geerlingguy.*

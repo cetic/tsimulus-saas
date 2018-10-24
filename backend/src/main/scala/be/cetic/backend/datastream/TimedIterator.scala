@@ -1,6 +1,7 @@
 package be.cetic.backend.datastream
 
 import be.cetic.backend.datastream.TimedIterator.Config
+import be.cetic.backend.datastream.counter.TimedCounter
 
 import scala.concurrent.duration.FiniteDuration
 
@@ -28,6 +29,8 @@ trait TimedIterator[T] {
   private var nextElement: Option[T] = None
 
   def computeNextDelay(next: T): FiniteDuration
+
+  def duplicate : (TimedIterator[T], TimedIterator[T]) = (this, TimedIterator.factory(config))
 
   def next(): Option[(FiniteDuration, T)] = {
     if (!initialized) {

@@ -1,14 +1,15 @@
-package be.cetic.backend.datastream
+package be.cetic.backend.datastream.counter
 
-import be.cetic.backend.datastream.TimedCounter.CounterConfig
+import be.cetic.backend.datastream.TimedIterator
 import be.cetic.backend.datastream.TimedIterator.Config
+import be.cetic.backend.datastream.counter.TimedCounter.CounterConfig
 
 import scala.concurrent.duration.FiniteDuration
 
 object TimedCounter {
 
   case class CounterConfig(upTo: Int, delay: FiniteDuration) extends Config{
-    override val description = s"Counter up to $upTo"
+    override val description = s"Counter up to $upTo, with delay $delay"
   }
 }
 

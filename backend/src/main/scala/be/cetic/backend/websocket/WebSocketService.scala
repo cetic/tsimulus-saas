@@ -1,16 +1,20 @@
 package be.cetic.backend.websocket
 
 import akka.actor.ActorSystem
+import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.server.Directives.{handleWebSocketMessages, path, _}
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
-import be.cetic.backend.datastream.TimedCounter
+import be.cetic.backend.datastream.{TimedIterator, TimedIteratorConfigJsonProtocol}
+import be.cetic.backend.datastream.counter.TimedCounter
+import be.cetic.backend.utils.json.UUIDJsonProtocol
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration._
+import spray.json._
 
-trait WebSocketService {
+trait WebSocketService extends TimedIteratorConfigJsonProtocol with UUIDJsonProtocol with DefaultJsonProtocol with SprayJsonSupport {
   implicit val materializer: ActorMaterializer
   implicit val system: ActorSystem
   implicit val dispatcher: ExecutionContextExecutor = system.dispatcher
@@ -18,31 +22,37 @@ trait WebSocketService {
   private val wsFactory = new WebsocketFactory
 
   lazy val webSocketRoute: Route =
-    pathPrefix("ws") {
+    pathPrefix("stream") {
       pathEnd {
         post {
           complete {
             wsFactory.createOrUpdateConfig(TimedCounter.CounterConfig(10, 1 second))
-              .toString
           }
         } ~
           get {
             complete {
-              wsFactory.readConfigs().toString()
+              wsFactory.readConfigs()
             }
           }
       } ~
         pathPrefix(JavaUUID) { wsId =>
           pathEnd {
             post {
-              complete {
-                wsFactory.createOrUpdateConfig(TimedCounter.CounterConfig(10, 1 second), wsId)
-                  .toString
+              entity(as[TimedIterator.Config]) { config =>
+                complete {
+                  wsFactory.createOrUpdateConfig(config, wsId)
+                }
               }
             } ~
               get {
                 complete {
-                  wsFactory.readConfig(wsId).toString()
+                  wsFactory.readConfig(wsId)
+                }
+              } ~
+              delete {
+                complete {
+                  wsFactory.deleteConfig(wsId)
+                  s"Configuration $wsId deleted."
                 }
               }
           } ~
@@ -52,14 +62,23 @@ trait WebSocketService {
                   wsFactory.startStream(wsId)
                 }
               }
-            }~
-          path("ws"){
-            handleWebSocketMessages {
-              wsFactory.getOrCreateWebsocketHandler(wsId).flow
+            } ~
+            path("stop") {
+              post {
+                complete {
+                  wsFactory.stopStream(wsId)
+                }
+              }
+            } ~
+            path("ws") {
+              handleWebSocketMessages {
+                wsFactory.getOrCreateWebsocketHandler(wsId).flow
+              }
             }
-          }
         }
     }
+
+
 }
 
 

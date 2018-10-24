@@ -14,6 +14,7 @@ libraryDependencies := Seq(
   "org.scalactic" %% "scalactic" % "3.0.0",
   "be.cetic" %% "tsimulus" % "0.1.14",
   "com.typesafe.akka" %% "akka-actor" % Version.akka,
+  "com.typesafe.akka" %% "akka-http-spray-json" % "10.1.5",
   "com.typesafe.akka" %% "akka-http" % "10.1.5",
   "com.typesafe.akka" %% "akka-stream" %  "2.5.13"
 )

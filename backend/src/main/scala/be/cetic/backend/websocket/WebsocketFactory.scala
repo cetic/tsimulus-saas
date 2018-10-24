@@ -3,15 +3,19 @@ package be.cetic.backend.websocket
 import java.util.UUID
 
 import akka.NotUsed
+import akka.pattern.ask
 import akka.actor.{ActorRef, ActorSystem}
 import akka.http.scaladsl.model.ws.{Message, TextMessage}
-import akka.stream.scaladsl.{BroadcastHub, Flow, Keep, Sink, Source}
 import akka.stream.{Materializer, OverflowStrategy}
+import akka.stream.scaladsl.{BroadcastHub, Flow, Keep, Sink, Source}
+import akka.util.Timeout
 import be.cetic.backend.datastream.TimedIterator
+import be.cetic.backend.datastream.TimedIterator.Config
+import be.cetic.backend.websocket.WebsocketActor.{EmptyStreamConfiguration, StreamingConfirmation, StreamingNotStarted, StreamingStarted}
 import be.cetic.backend.websocket.WebsocketFactory.WsHandler
 
-import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContextExecutor, Future}
 
 object WebsocketFactory {
 
@@ -28,6 +32,7 @@ object WebsocketFactory {
 
 class WebsocketFactory(implicit val system: ActorSystem, implicit val materializer: Materializer) {
   implicit val dispatcher: ExecutionContextExecutor = system.dispatcher
+  implicit val timeout: Timeout = Timeout(20 seconds)
   private var configCache: Map[UUID, TimedIterator.Config] = Map()
   private var wsHandlers: Map[UUID, WsHandler] = Map()
 
@@ -38,17 +43,17 @@ class WebsocketFactory(implicit val system: ActorSystem, implicit val materializ
   }
 
   def createOrUpdateConfig(wsConfig: TimedIterator.Config, wsId: UUID): UUID = {
-    deleteConfig(wsId)
     configCache = configCache.updated(wsId, wsConfig)
+    getOrCreateWebsocketHandler(wsId).websocketActor ! WebsocketActor.Configure(wsConfig)
     wsId
   }
 
-  def readConfigs(): Map[UUID, String] = {
-    configCache.map { case (wsid, conf) => wsid -> conf.description }
+  def readConfigs(): Map[UUID, Config] = {
+    configCache.map { case (wsid, conf) => wsid -> conf }
   }
 
-  def readConfig(wsId: UUID): String = {
-    configCache.get(wsId).map(_.description).getOrElse("No such resource.")
+  def readConfig(wsId: UUID): Option[Config] = {
+    configCache.get(wsId)
   }
 
   def deleteConfig(wsId: UUID): Unit = {
@@ -59,14 +64,24 @@ class WebsocketFactory(implicit val system: ActorSystem, implicit val materializ
     configCache -= wsId
   }
 
-  def startStream(wsId: UUID): String=  {
-    configCache.get(wsId).map{config=>
-      getOrCreateWebsocketHandler(wsId).websocketActor ! WebsocketActor.Consume(TimedIterator.factory(config))
-      "Stream started"
+  def startStream(wsId: UUID): Future[String] = {
+    (getOrCreateWebsocketHandler(wsId).websocketActor ? WebsocketActor.Start).mapTo[StreamingConfirmation]
+      .map {
+        case StreamingStarted => "Streaming started"
+        case StreamingNotStarted => "Streaming could not start"
+        case EmptyStreamConfiguration => "Missing stream configuration"
+      }
+  }
+
+  def stopStream(wsId: UUID): String = {
+    configCache.get(wsId).map {
+      config =>
+        getOrCreateWebsocketHandler(wsId).websocketActor ! WebsocketActor.Stop
+        "Stream stopped"
     }.getOrElse("Stream not configured.")
   }
 
-  def getOrCreateWebsocketHandler(wsId: UUID): WsHandler ={
+  def getOrCreateWebsocketHandler(wsId: UUID): WsHandler = {
     wsHandlers.getOrElse(wsId, createWebsocketHandler(wsId))
   }
 
@@ -78,7 +93,7 @@ class WebsocketFactory(implicit val system: ActorSystem, implicit val materializ
 
     val (streamEntry: ActorRef, messageSource: Source[Message, NotUsed]) = source.toMat(BroadcastHub.sink(1024))(Keep.both).run
 
-    val websocketActor : ActorRef = system.actorOf(WebsocketActor.props(streamEntry))
+    val websocketActor: ActorRef = system.actorOf(WebsocketActor.props(streamEntry))
     val sink: Sink[Message, NotUsed] = Flow[Message].to(Sink.actorRef(websocketActor, WebsocketActor.WsDropped))
 
     val flow = Flow.fromSinkAndSource(sink, messageSource)

@@ -9,11 +9,6 @@ spec:
   selector:
     matchLabels:
       app: tsimulus-cluster-akka-backend
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
   template:
     metadata:
       labels:
@@ -21,7 +16,6 @@ spec:
     spec:
       containers:
       - image: nexus.ext.cetic.be:8083/cetic/tsimulus-cluster-akka-backend
-        imagePullPolicy: IfNotPresent
         name: tsimulus-cluster-akka-backend
         env:
           - name: SEED_NODES
@@ -37,6 +31,6 @@ spec:
           protocol: TCP
         livenessProbe:
           tcpSocket:
-          port: 2551
+            port: 2551
       status:
         dockerImageRepository: nexus.ext.cetic.be:8083

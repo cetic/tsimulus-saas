@@ -56,6 +56,14 @@ The `/vagrant` folder in the VM is shared with the folder where the `Vagrantfile
 
 ### 0.3. Local development development with Minikube
 
+#### 0.3.1. Install Minikube
+
+* Install VirtualBox: https://www.virtualbox.org/wiki/Downloads
+* Install Kubectl: https://kubernetes.io/docs/tasks/tools/install-kubectl/
+* Install Minikube: https://github.com/kubernetes/minikube/releases
+
+To get the dashboard, type: `minikube dashboard` 
+
 ## 1. Functional specifications
 
 ### 1.1. TSimulus as a service

@@ -6,6 +6,8 @@ project/target
 .cache
 .cache-main
 .idea/
+/bin/
+
 .vagrant
 provisioning/roles/geerlingguy.*
 provisioning/roles/mpathira.*

@@ -62,7 +62,13 @@ The `/vagrant` folder in the VM is shared with the folder where the `Vagrantfile
 * Install Kubectl: https://kubernetes.io/docs/tasks/tools/install-kubectl/
 * Install Minikube: https://github.com/kubernetes/minikube/releases
 
-To get the dashboard, type: `minikube dashboard` 
+#### 0.3.2. Deploy the project
+
+To get the Kubernetes dashboard, type: `minikube dashboard` 
+
+```
+kubectl create -f tsimulus-backend-statefulset.yml
+```
 
 ## 1. Functional specifications
 

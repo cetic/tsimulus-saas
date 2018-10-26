@@ -28,7 +28,7 @@ trait TimedIterator[T] {
   private var initialized= false
   private var nextElement: Option[T] = None
 
-  def computeNextDelay(next: T): FiniteDuration
+  def computeNextDelay(current: Option[T], next: Option[T]): FiniteDuration
 
   def duplicate : (TimedIterator[T], TimedIterator[T]) = (this, TimedIterator.factory(config))
 
@@ -39,7 +39,7 @@ trait TimedIterator[T] {
     }
     val thisElement = nextElement
     nextElement = prepareNextElement()
-    thisElement.map(next => (computeNextDelay(next), next))
+    thisElement.map(next => (computeNextDelay(thisElement, nextElement), next))
   }
 
   private def prepareNextElement(): Option[T] = {

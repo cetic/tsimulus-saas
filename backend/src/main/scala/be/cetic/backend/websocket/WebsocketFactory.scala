@@ -25,7 +25,6 @@ object WebsocketFactory {
 
   case object WsUnavailable
 
-
   case class WsHandler(websocketActor: ActorRef, streamEntry: ActorRef, flow: Flow[Message, Message, NotUsed])
 
 }
@@ -52,8 +51,8 @@ class WebsocketFactory(implicit val system: ActorSystem, implicit val materializ
     configCache.map { case (wsid, conf) => wsid -> conf }
   }
 
-  def readConfig(wsId: UUID): Option[Config] = {
-    configCache.get(wsId)
+  def readConfig(wsId: UUID): Map[UUID, Config] = {
+    configCache.get(wsId).map(c=>Map(wsId -> c)).getOrElse(Map())
   }
 
   def deleteConfig(wsId: UUID): Unit = {
@@ -68,7 +67,7 @@ class WebsocketFactory(implicit val system: ActorSystem, implicit val materializ
     (getOrCreateWebsocketHandler(wsId).websocketActor ? WebsocketActor.Start).mapTo[StreamingConfirmation]
       .map {
         case StreamingStarted => "Streaming started"
-        case StreamingNotStarted => "Streaming could not start"
+        case StreamingNotStarted(t) => s"Streaming could not start because of ${t.getMessage}"
         case EmptyStreamConfiguration => "Missing stream configuration"
       }
   }

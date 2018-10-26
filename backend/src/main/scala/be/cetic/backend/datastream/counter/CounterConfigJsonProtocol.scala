@@ -5,7 +5,7 @@ import spray.json.{DefaultJsonProtocol, JsNumber, JsObject, JsString, JsValue, J
 
 import scala.concurrent.duration.FiniteDuration
 
-trait CounterConfigJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport{
+trait CounterConfigJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
 
   implicit object CounterConfigJsonFormat extends RootJsonFormat[TimedCounter.CounterConfig] {
     def write(config: TimedCounter.CounterConfig): JsValue = {
@@ -23,10 +23,9 @@ trait CounterConfigJsonProtocol extends DefaultJsonProtocol with SprayJsonSuppor
         Map(
           "length" -> JsNumber(config.delay.length),
           "unit" -> JsString(durationUnit),
-          "description" -> JsString(description)
         )
       )
-      JsObject(Map("up_to" -> JsNumber(config.upTo), "delay" -> jsDelay, "type" -> JsString("counter")))
+      JsObject(Map("up_to" -> JsNumber(config.upTo), "delay" -> jsDelay, "type" -> JsString("counter"), "description" -> JsString(description)))
     }
 
     def read(json: JsValue): TimedCounter.CounterConfig = {

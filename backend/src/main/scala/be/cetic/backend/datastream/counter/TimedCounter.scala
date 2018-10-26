@@ -17,5 +17,5 @@ class TimedCounter(val config: CounterConfig) extends TimedIterator[String] {
 
   val iterator: Iterator[String] = Iterator.range(0, config.upTo).map(_.toString)
 
-   def computeNextDelay(next: String): FiniteDuration = config.delay
+   def computeNextDelay(current: Option[String], next: Option[String]): FiniteDuration = config.delay
 }

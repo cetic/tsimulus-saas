@@ -12,8 +12,6 @@ import scala.concurrent.duration.FiniteDuration
 
 object WebsocketActor {
 
-  case class WsSource(ref: ActorRef)
-
   case object WsDropped
 
   case class Configure(config: TimedIterator.Config)
@@ -24,6 +22,8 @@ object WebsocketActor {
 
   case object StatusRequest
 
+  //ToDo : Implement status request in REST API
+
   case class Status(running: Boolean, nextDelay: Option[Int])
 
   trait StreamingConfirmation
@@ -32,7 +32,7 @@ object WebsocketActor {
 
   case object StreamingStarted extends StreamingConfirmation
 
-  case object StreamingNotStarted extends StreamingConfirmation
+  case class StreamingNotStarted(t: Throwable) extends StreamingConfirmation
 
   def props(wsSourceActor: ActorRef): Props =
     Props(new WebsocketActor(wsSourceActor))
@@ -69,7 +69,7 @@ class WebsocketActor[T](wsSourceActor: ActorRef) extends Actor with ActorLogging
 
     case TextMessage.Strict("stop") => wsSourceActor ! s"""{"cancel":${stop()}}"""
 
-    case TextMessage.Strict("running") => wsSourceActor ! s"""{"running":${!maybeNextDelay.nonEmpty}}"""
+    case TextMessage.Strict("running") => wsSourceActor ! s"""{"running":${maybeNextDelay.isEmpty}}"""
 
     case TextMessage.Strict("delay") => wsSourceActor ! s"""{"delay":${maybeNextDelay.getOrElse(-1)}}"""
 
@@ -83,7 +83,16 @@ class WebsocketActor[T](wsSourceActor: ActorRef) extends Actor with ActorLogging
       confirmTo ! EmptyStreamConfiguration
       return
     }
-    confirmTo ! (if (consume()) StreamingStarted else StreamingNotStarted)
+    confirmTo ! {
+      try {
+        consume()
+        StreamingStarted
+      }
+      catch {
+        case t: Throwable =>
+          StreamingNotStarted(t)
+      }
+    }
   }
 
   def stop(): Boolean = {

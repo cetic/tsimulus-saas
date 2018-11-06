@@ -1,4 +1,4 @@
-package be.cetic.backend.utils.json
+package be.cetic.tsaas.utils.json
 
 import java.util.UUID
 

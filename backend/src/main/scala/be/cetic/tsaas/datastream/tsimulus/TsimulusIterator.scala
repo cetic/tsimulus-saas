@@ -1,9 +1,10 @@
-package be.cetic.backend.datastream.tsimulus
+package be.cetic.tsaas.datastream.tsimulus
 
-import be.cetic.backend.datastream.TimedIterator
-import be.cetic.backend.datastream.tsimulus.TsimulusIterator.{InfiniteSpeed, Realtime, SpeedFactor}
+import be.cetic.tsaas.datastream.TimedIterator
+import be.cetic.tsaas.datastream.tsimulus.TsimulusIterator.{InfiniteSpeed, Realtime, SpeedFactor}
 import be.cetic.rtsgen.Utils
 import be.cetic.rtsgen.config.Configuration
+import be.cetic.tsaas.utils.templates.FreeMarkerParser
 import org.joda.time.format.DateTimeFormat
 
 import scala.concurrent.duration.{FiniteDuration, _}
@@ -18,7 +19,7 @@ object TsimulusIterator {
 
   case object Realtime extends Speed
 
-  case class Template(template: String, timeVariable: String, nameVariable: String, valueVariable: String, datetimeFormat: String = "YYYY-MM-dd HH:mm:ss.SSS")
+  case class Template(template: String, timeVariable: String, nameVariable: String, valueVariable: String)
 
   val defaultTemplate = Template("<TIME>;<NAME>;<VALUE>", "<TIME>", "<NAME>", "<VALUE>")
 
@@ -42,21 +43,20 @@ object TsimulusIterator {
 }
 
 class TsimulusIterator(val config: TsimulusIterator.TsimulusConfig) extends TimedIterator[String] {
-  private val dateTimeFormats = config.template.map { case (name, template) =>
-    name -> DateTimeFormat.forPattern(template.datetimeFormat)
-  }
 
   private def makeIterator: Iterator[(Long, String)] = {
     val stream = Utils.generate(Utils.config2Results(config.config))
 
     stream.map { case (dateTime, name, value) =>
       val pattern = config.template(name)
+      val freeMarkerTemplate = new FreeMarkerParser(pattern.template)
+      val tValue =  dateTime.toDateTime.getMillis
+      val dataModel = Map(pattern.timeVariable ->tValue, pattern.valueVariable->value, pattern.nameVariable->name)
 
-      val tVar = dateTimeFormats(name).print(dateTime)
 
-      def result: String = pattern.template.replace(pattern.timeVariable, tVar).replace(pattern.nameVariable, name).replace(pattern.valueVariable, value.toString)
+      def result: String = freeMarkerTemplate.process(dataModel)
 
-      (dateTime.toDate.toInstant.toEpochMilli, result)
+      (tValue, result)
     }.toIterator
   }
 

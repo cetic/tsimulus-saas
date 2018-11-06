@@ -1,9 +1,9 @@
-package be.cetic.backend.datastream
+package be.cetic.tsaas.datastream
 
-import be.cetic.backend.datastream.counter.{CounterConfigJsonProtocol, TimedCounter}
+import be.cetic.tsaas.datastream.counter.{CounterConfigJsonProtocol, TimedCounter}
 import spray.json.{DefaultJsonProtocol, DeserializationException, JsString, JsValue, RootJsonFormat}
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import be.cetic.backend.datastream.tsimulus.{TsimulusConfigJsonProtocol, TsimulusIterator}
+import be.cetic.tsaas.datastream.tsimulus.{TsimulusConfigJsonProtocol, TsimulusIterator}
 
 
 trait TimedIteratorConfigJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport with CounterConfigJsonProtocol with TsimulusConfigJsonProtocol {

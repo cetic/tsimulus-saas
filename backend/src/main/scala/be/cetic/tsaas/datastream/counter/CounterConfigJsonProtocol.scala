@@ -1,4 +1,4 @@
-package be.cetic.backend.datastream.counter
+package be.cetic.tsaas.datastream.counter
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import spray.json.{DefaultJsonProtocol, JsNumber, JsObject, JsString, JsValue, RootJsonFormat}

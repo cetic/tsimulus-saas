@@ -1,11 +1,9 @@
-package be.cetic.backend.websocket
-
-import java.util.UUID
+package be.cetic.tsaas.websocket
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Cancellable, Props}
 import akka.http.scaladsl.model.ws.TextMessage
-import be.cetic.backend.datastream.TimedIterator
-import be.cetic.backend.websocket.WebsocketActor._
+import be.cetic.tsaas.datastream.TimedIterator
+import be.cetic.tsaas.websocket.WebsocketActor._
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration.FiniteDuration
@@ -16,15 +14,15 @@ object WebsocketActor {
 
   case class Configure(config: TimedIterator.Config)
 
+  case object Validate
+
   case object Start
 
   case object Stop
 
   case object StatusRequest
 
-  //ToDo : Implement status request in REST API
-
-  case class Status(running: Boolean, nextDelay: Option[Int])
+  case class Status(running: Boolean, configured: Boolean, nextDelay: Option[Int])
 
   trait StreamingConfirmation
 
@@ -53,15 +51,19 @@ class WebsocketActor[T](wsSourceActor: ActorRef) extends Actor with ActorLogging
   def receive: Actor.Receive = {
     case Configure(config) => streamConfig = Some(config)
 
+    case Validate =>sender ! consumeAndConfirm(sender, once=true)
+
     case Start => sender ! consumeAndConfirm(sender)
 
     case Stop => iteratorSchedule.cancel()
+
+    case StatusRequest => sender ! Status(!iteratorSchedule.isCancelled, streamConfig.nonEmpty, maybeNextDelay.map(_.length.toInt))
 
     case WsDropped => log.info(s"Websocket connection closed.")
 
     case TextMessage.Strict("help") => wsSourceActor ! s"""commands:[empty, restart, configured, stop, running]"""
 
-    case TextMessage.Strict("empty") => wsSourceActor ! s"""{"empty":$emptyIterator}"""
+    case TextMessage.Strict("empty") => wsSourceActor ! s"""{"empty":${emptyIterator && streamConfig.nonEmpty} }"""
 
     case TextMessage.Strict("restart") => wsSourceActor ! s"""{"restart":${consume()}}"""
 
@@ -78,14 +80,14 @@ class WebsocketActor[T](wsSourceActor: ActorRef) extends Actor with ActorLogging
     case msg => log.info(s"Received unhandled message $msg")
   }
 
-  def consumeAndConfirm(confirmTo: ActorRef): Unit = {
+  def consumeAndConfirm(confirmTo: ActorRef, once: Boolean=false): Unit = {
     if (streamConfig.isEmpty) {
       confirmTo ! EmptyStreamConfiguration
       return
     }
     confirmTo ! {
       try {
-        consume()
+        consume(once)
         StreamingStarted
       }
       catch {
@@ -100,11 +102,11 @@ class WebsocketActor[T](wsSourceActor: ActorRef) extends Actor with ActorLogging
     iteratorSchedule.cancel()
   }
 
-  def consume(): Boolean = {
+  def consume(once: Boolean= false): Boolean = {
     streamConfig.exists { config =>
       val iterator = TimedIterator.factory[String](config)
       emptyIterator = false
-      runAndSchedule(iterator)
+      if (!once) runAndSchedule(iterator)
       true
     }
   }

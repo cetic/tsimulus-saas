@@ -1,8 +1,8 @@
-package be.cetic.backend.datastream.counter
+package be.cetic.tsaas.datastream.counter
 
-import be.cetic.backend.datastream.TimedIterator
-import be.cetic.backend.datastream.TimedIterator.Config
-import be.cetic.backend.datastream.counter.TimedCounter.CounterConfig
+import be.cetic.tsaas.datastream.TimedIterator
+import be.cetic.tsaas.datastream.TimedIterator.Config
+import be.cetic.tsaas.datastream.counter.TimedCounter.CounterConfig
 
 import scala.concurrent.duration.FiniteDuration
 

@@ -1,4 +1,4 @@
-package be.cetic.backend.websocket
+package be.cetic.tsaas.websocket
 
 import java.util.UUID
 
@@ -9,10 +9,10 @@ import akka.http.scaladsl.model.ws.{Message, TextMessage}
 import akka.stream.{Materializer, OverflowStrategy}
 import akka.stream.scaladsl.{BroadcastHub, Flow, Keep, Sink, Source}
 import akka.util.Timeout
-import be.cetic.backend.datastream.TimedIterator
-import be.cetic.backend.datastream.TimedIterator.Config
-import be.cetic.backend.websocket.WebsocketActor.{EmptyStreamConfiguration, StreamingConfirmation, StreamingNotStarted, StreamingStarted}
-import be.cetic.backend.websocket.WebsocketFactory.WsHandler
+import be.cetic.tsaas.datastream.TimedIterator
+import be.cetic.tsaas.datastream.TimedIterator.Config
+import be.cetic.tsaas.websocket.WebsocketActor.{EmptyStreamConfiguration, StreamingConfirmation, StreamingNotStarted, StreamingStarted}
+import be.cetic.tsaas.websocket.WebsocketFactory.WsHandler
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContextExecutor, Future}
@@ -78,6 +78,10 @@ class WebsocketFactory(implicit val system: ActorSystem, implicit val materializ
         getOrCreateWebsocketHandler(wsId).websocketActor ! WebsocketActor.Stop
         "Stream stopped"
     }.getOrElse("Stream not configured.")
+  }
+
+  def streamStatus(wsId: UUID): Future[WebsocketActor.Status] = {
+    (getOrCreateWebsocketHandler(wsId).websocketActor ? WebsocketActor.StatusRequest).mapTo[WebsocketActor.Status]
   }
 
   def getOrCreateWebsocketHandler(wsId: UUID): WsHandler = {

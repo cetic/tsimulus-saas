@@ -1,4 +1,4 @@
-package be.cetic.backend.websocket
+package be.cetic.tsaas.websocket
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
@@ -6,15 +6,15 @@ import akka.http.scaladsl.server.Directives.{handleWebSocketMessages, path, _}
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
-import be.cetic.backend.datastream.{TimedIterator, TimedIteratorConfigJsonProtocol}
-import be.cetic.backend.datastream.counter.TimedCounter
-import be.cetic.backend.utils.json.UUIDJsonProtocol
+import be.cetic.tsaas.datastream.{TimedIterator, TimedIteratorConfigJsonProtocol}
+import be.cetic.tsaas.datastream.counter.TimedCounter
+import be.cetic.tsaas.utils.json.UUIDJsonProtocol
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration._
 import spray.json._
 
-trait WebSocketService extends TimedIteratorConfigJsonProtocol with UUIDJsonProtocol with DefaultJsonProtocol with SprayJsonSupport {
+trait WebSocketService extends TimedIteratorConfigJsonProtocol with WebsocketActorJsonProtocol with UUIDJsonProtocol with DefaultJsonProtocol with SprayJsonSupport {
   implicit val materializer: ActorMaterializer
   implicit val system: ActorSystem
   implicit val dispatcher: ExecutionContextExecutor = system.dispatcher
@@ -56,6 +56,20 @@ trait WebSocketService extends TimedIteratorConfigJsonProtocol with UUIDJsonProt
                 }
               }
           } ~
+            path("validate") {
+              get {
+                complete {
+                  wsFactory.startStream(wsId)
+                }
+              }
+            } ~
+            path("status") {
+            get {
+              complete {
+                wsFactory.streamStatus(wsId)
+              }
+            }
+          } ~
             path("start") {
               post {
                 complete {
@@ -77,8 +91,6 @@ trait WebSocketService extends TimedIteratorConfigJsonProtocol with UUIDJsonProt
             }
         }
     }
-
-
 }
 
 

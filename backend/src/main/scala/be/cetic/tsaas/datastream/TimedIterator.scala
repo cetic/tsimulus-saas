@@ -33,7 +33,6 @@ trait TimedIterator[T] {
 
   def computeNextDelay(current: Option[(Long, T)], next: Option[(Long, T)]): FiniteDuration
 
-
   def duplicate: (TimedIterator[T], TimedIterator[T]) = (this, TimedIterator.factory(config))
 
   def next(): Option[(FiniteDuration, T)] = {

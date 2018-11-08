@@ -5,7 +5,7 @@ name := "tsimulus-saas-backend"
 version:= "0.1"
 
 
-mainClass in(Compile, run) := Some("be.cetic.backend.Backend")
+mainClass in(Compile, run) := Some("be.cetic.tsaas.Backend")
 mainClass in(Compile, packageBin) := Some("be.cetic.backend.Backend")
 
 libraryDependencies := Seq(
@@ -19,5 +19,9 @@ libraryDependencies := Seq(
   "com.typesafe.akka" %% "akka-stream" %  "2.5.13",
   "be.cetic" %% "rts-gen" % "0.1.13",
   "org.scalatest" %% "scalatest" % "3.0.0" % "test",
-  "org.freemarker" % "freemarker" % "2.3.28"
+  "org.freemarker" % "freemarker" % "2.3.28",
+  "javax.ws.rs" % "javax.ws.rs-api" % "2.0.1",
+  "com.github.swagger-akka-http" %% "swagger-akka-http" % "2.0.0",
+  "com.github.swagger-akka-http" %% "swagger-scala-module" % "2.0.2",
+  "ch.megard" %% "akka-http-cors" % "0.3.0"
 )

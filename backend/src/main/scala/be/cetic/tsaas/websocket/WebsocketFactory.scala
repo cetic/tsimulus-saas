@@ -63,10 +63,11 @@ class WebsocketFactory(implicit val system: ActorSystem, implicit val materializ
     configCache -= wsId
   }
 
-  def startStream(wsId: UUID): Future[String] = {
-    (getOrCreateWebsocketHandler(wsId).websocketActor ? WebsocketActor.Start).mapTo[StreamingConfirmation]
+  def startStream(wsId: UUID, once: Boolean=false): Future[String] = {
+    val msg = if (once) WebsocketActor.Validate else WebsocketActor.Start
+    (getOrCreateWebsocketHandler(wsId).websocketActor ? msg).mapTo[StreamingConfirmation]
       .map {
-        case StreamingStarted => "Streaming started"
+        case StreamingStarted => s"Streaming ${if (once) "valid" else "started"}"
         case StreamingNotStarted(t) => s"Streaming could not start because of ${t.getMessage}"
         case EmptyStreamConfiguration => "Missing stream configuration"
       }

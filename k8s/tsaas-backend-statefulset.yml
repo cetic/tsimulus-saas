@@ -5,8 +5,8 @@ metadata:
 spec:
   ports:
   - protocol: TCP
-    port: 2551
-    targetPort: 2551
+    port: 8080
+    targetPort: 8080
   selector:
     run: tsaas-backend 
   clusterIP: None
@@ -22,7 +22,7 @@ metadata:
 spec:
   serviceName: tsaas-backend
   podManagementPolicy: "Parallel"
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       run: tsaas-backend
@@ -39,15 +39,15 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
-        - name: SEED_NODES
-          value: akka-seed-0.akka-seed,akka-seed-1.akka-seed
-        - name: HOSTNAME
-          value: $(POD_NAME).akka-seed
+        #- name: SEED_NODES
+        #  value: akka-seed-0.akka-seed,akka-seed-1.akka-seed
+        #- name: HOSTNAME
+        #  value: $(POD_NAME).akka-seed
         livenessProbe:
           tcpSocket:
             port: 2551
         ports:
-        - containerPort: 2551
+        - containerPort: 8080
           protocol: TCP
         #status:
         #  dockerImageRepository: nexus.ext.cetic.be:8083

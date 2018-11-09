@@ -60,13 +60,13 @@ deploy:
   environment:
     name: develop
     url: http://tsimulus-cluster.$OPENSHIFT_DOMAIN
-  only:
-    - develop
+  except:
+    - master
     
 publish:
   <<: *publish
   stage: publishToNexus
   tags:
     - shared
-  only:
-    - develop
+  except:
+    - master

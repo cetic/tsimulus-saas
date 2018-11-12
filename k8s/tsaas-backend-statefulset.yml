@@ -43,9 +43,9 @@ spec:
         #  value: akka-seed-0.akka-seed,akka-seed-1.akka-seed
         #- name: HOSTNAME
         #  value: $(POD_NAME).akka-seed
-        livenessProbe:
-          tcpSocket:
-            port: 8080
+        #livenessProbe:
+        #  tcpSocket:
+        #    port: 8080
         ports:
         - containerPort: 8080
           protocol: TCP

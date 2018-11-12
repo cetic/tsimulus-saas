@@ -162,6 +162,7 @@ TBD
 * https://docs.openshift.com/container-platform/3.5/dev_guide/managing_images.html#allowing-pods-to-reference-images-from-other-secured-registries
 * http://v1.uncontained.io/playbooks/continuous_delivery/external-docker-registry-integration.html
 * allow publishing on Nexus
+* pulling images from OpenShift: https://docs.openshift.com/enterprise/3.0/dev_guide/image_pull_secrets.html
 * deploy akka cluster on kubernetes: https://medium.com/google-cloud/clustering-akka-in-kubernetes-with-statefulset-and-deployment-459c0e05f2ea
 
 ? unit testing

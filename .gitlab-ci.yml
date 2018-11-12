@@ -21,12 +21,10 @@ variables:
   script:
     # login to Nexus Docker repository
     - docker login -u "$NEXUS_USER" -p "$NEXUS_PASSWORD" "$NEXUS_SERVER"
-    # build tsimulus-cluster
+    # build tsimulus-saas
     - sbt clean package
-    # publish Backend Docker image to Nexus
+    # publish Backend Docker image to Nexus Repository
     - sbt "backend/docker:publish"
-    # publish Frontend Docker image to Nexus
-    #- sbt "frontend/docker:publish"
   
 .deploy: &deploy
   before_script:
@@ -37,16 +35,9 @@ variables:
     # remove old pods
     - "oc get services $APP 2> /dev/null && oc delete -f k8s/tsaas-backend-statefulset.yml"
     ## Issue when trying to delete the statefulset https://github.com/kubernetes/kubernetes/issues/59867 Bug car pas même version de kubectl client - seveur
-    #- "oc delete -f k8s/tsimulus-frontend-deployment.yml"
-    #- "oc delete -f k8s/tsimulus-backend-deployment.yml"
     # create new pods
     - "oc create -f k8s/tsaas-backend-statefulset.yml"
-    #- "oc create -f k8s/tsimulus-frontend-deployment.yml"
-    #- "oc create -f k8s/tsimulus-backend-deployment.yml"
     - "oc get routes $APP 2> /dev/null || oc expose service $APP --hostname=$APP_HOST"
-    #- "oc get services $APP 2> /dev/null || oc new-app . --name=$APP"
-    #- "oc start-build $APP --from-dir=. --follow || sleep 3s"
-    #- "oc get routes $APP 2> /dev/null || oc expose service $APP --hostname=$APP_HOST"
     
 deploy:
   <<: *deploy

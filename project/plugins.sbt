@@ -4,9 +4,6 @@ logLevel := Level.Warn
 // The Typesafe repository
 resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 
-// Eclipse Plugin
-addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "5.2.4")
-
 // Git Plugin https://blog.softwaremill.com/meaningful-docker-image-tags-made-with-build-tools-c8877cd21da9
 addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "0.9.3")
 

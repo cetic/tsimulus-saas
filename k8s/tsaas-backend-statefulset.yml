@@ -45,7 +45,7 @@ spec:
         #  value: $(POD_NAME).akka-seed
         livenessProbe:
           tcpSocket:
-            port: 2551
+            port: 8080
         ports:
         - containerPort: 8080
           protocol: TCP

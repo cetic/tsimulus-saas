@@ -43,11 +43,11 @@ spec:
               fieldPath: metadata.name
         #- name: SEED_NODES
         #  value: akka-seed-0.akka-seed,akka-seed-1.akka-seed
-        #- name: HOSTNAME
-        #  value: $(POD_NAME).akka-seed
-        livenessProbe:
-          tcpSocket:
-            port: 8080
+        - name: BINDING
+          value: 0.0.0.0
+        #livenessProbe:
+        #  tcpSocket:
+        #    port: 8080
         ports:
         - containerPort: 8080
           protocol: TCP

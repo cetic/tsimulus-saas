@@ -49,5 +49,5 @@ spec:
         ports:
         - containerPort: 8080
           protocol: TCP
-        #status:
-        #  dockerImageRepository: nexus.ext.cetic.be:8083
+        status:
+          dockerImageRepository: nexus.ext.cetic.be:8083

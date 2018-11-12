@@ -1,7 +1,7 @@
 val commonSettings = Seq(
   organization := "cetic",
   version := "0.0.1",
-  scalaVersion := "2.11.7",
+  scalaVersion := "2.12.6",
   // git info
   git.formattedShaVersion := git.gitHeadCommit.value map { sha =>
 			s"$sha".substring(0, 8)
@@ -13,29 +13,19 @@ val commonSettings = Seq(
   dockerAlias := DockerAlias(dockerRepository.value, dockerUsername.value, name.value, git.formattedShaVersion.value),
   dockerUsername := Some("cetic")
 )
-/*
-  // build info
-  buildInfoPackage := "meta",
-  buildInfoOptions += BuildInfoOption.ToJson,
-  buildInfoKeys := Seq[BuildInfoKey](
-    name, version, scalaVersion,
-    "sbtNativePackager" -> "1.0.0"
-  )
-)
 
-*/
 lazy val backend = (project in file("backend"))
-    .enablePlugins(DockerPlugin, GitVersioning)
+    .enablePlugins(DockerPlugin, JavaAppPackaging, GitVersioning)
     .settings(
         name := "tsaas-backend",
-        libraryDependencies ++= (Dependencies.tsimulus ++ Dependencies.common),
+        libraryDependencies ++= Dependencies.backend,
         commonSettings
     )
 
 lazy val root = (project in file("."))
   .settings(
     name := "tsimulus-saas"
-  )
+  ).aggregate(backend)
   
 //
 // Scala Compiler Options

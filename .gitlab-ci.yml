@@ -59,10 +59,10 @@ deployDev:
 deployProd:
   stage: deployProd
   image: ebits/openshift-client:v3.6.0
-    before_script:
+  before_script:
     - oc login "$OPENSHIFT_SERVER" --token="$OPENSHIFT_PROD_TOKEN" --insecure-skip-tls-verify
     - oc project $PROJECT
-    script:
+  script:
     - echo deploy to OpenShift
     # remove old pods
     - "oc get services $APP 2> /dev/null && oc delete -f k8s/tsaas-backend-statefulset.yml"

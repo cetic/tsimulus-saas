@@ -1,6 +1,6 @@
 val commonSettings = Seq(
   organization := "cetic",
-  version := "0.0.1",
+  version := "1.0.0",
   scalaVersion := "2.12.6",
   // git info
   git.formattedShaVersion := git.gitHeadCommit.value map { sha =>
@@ -18,7 +18,6 @@ lazy val backend = (project in file("backend"))
     .enablePlugins(DockerPlugin, JavaAppPackaging, GitVersioning)
     .settings(
         name := "tsaas-backend",
-        libraryDependencies ++= Dependencies.backend,
         commonSettings
     )
 
@@ -26,7 +25,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "tsimulus-saas"
   ).aggregate(backend)
-  
+
 //
 // Scala Compiler Options
 // If this project is only a subproject, add these to a common project setting.

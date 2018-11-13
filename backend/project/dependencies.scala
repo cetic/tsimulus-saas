@@ -23,5 +23,4 @@ object Dependencies {
     "com.github.swagger-akka-http" %% "swagger-scala-module" % "2.0.2",
     "ch.megard" %% "akka-http-cors" % "0.3.0"
   )
-
 }

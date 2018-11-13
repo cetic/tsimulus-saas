@@ -1,11 +1,10 @@
 package be.cetic.tsaas.datastream.tsimulus
 
-import be.cetic.tsaas.datastream.TimedIterator
-import be.cetic.tsaas.datastream.tsimulus.TsimulusIterator.{InfiniteSpeed, Realtime, SpeedFactor}
 import be.cetic.rtsgen.Utils
 import be.cetic.rtsgen.config.Configuration
+import be.cetic.tsaas.datastream.TimedIterator
+import be.cetic.tsaas.datastream.tsimulus.TsimulusIterator.{InfiniteSpeed, Realtime, SpeedFactor}
 import be.cetic.tsaas.utils.templates.FreeMarkerParser
-import org.joda.time.format.DateTimeFormat
 
 import scala.concurrent.duration.{FiniteDuration, _}
 
@@ -21,7 +20,7 @@ object TsimulusIterator {
 
   case class Template(template: String, timeVariable: String, nameVariable: String, valueVariable: String)
 
-  val defaultTemplate = Template("<TIME>;<NAME>;<VALUE>", "<TIME>", "<NAME>", "<VALUE>")
+  val defaultTemplate = Template("${TIME};${NAME};${VALUE}", "TIME", "NAME", "VALUE")
 
 
   object TsimulusConfig {

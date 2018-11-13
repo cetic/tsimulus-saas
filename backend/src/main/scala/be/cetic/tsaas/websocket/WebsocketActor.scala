@@ -14,13 +14,15 @@ object WebsocketActor {
 
   case class Configure(config: TimedIterator.Config)
 
-  case object Validate
+  trait Operation
 
-  case object Start
+  case object Validate extends Operation
 
-  case object Stop
+  case object Start extends Operation
 
-  case object StatusRequest
+  case object Stop extends Operation
+
+  case object StatusRequest extends Operation
 
   case class Status(running: Boolean, configured: Boolean, nextDelay: Option[Int])
 

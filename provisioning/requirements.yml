@@ -1,3 +1,4 @@
 - name: mpathira.sbt
   src: https://github.com/milinda/ansible-sbt.git
 - geerlingguy.java
+- geerlingguy.docker

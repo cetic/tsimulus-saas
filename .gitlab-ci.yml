@@ -1,6 +1,7 @@
 stages:
-  - publishToNexus
-  - deployToOpenShift
+- publish
+- deployDev
+- deployProd
 
 variables:
   OPENSHIFT_SERVER: https://openshift.ext.cetic.be:8443
@@ -16,34 +17,34 @@ variables:
 publish:
   stage: publish
   before_script:
-    # openjdk-8-jdk, sbt and docker have been installed on the shared shell runner.
-    # Nexus server URL has been added to the /etc/docker/daemon.json as "insecure-registries".
-    # check version of Docker
-    - docker --version
+  # openjdk-8-jdk, sbt and docker have been installed on the shared shell runner.
+  # Nexus server URL has been added to the /etc/docker/daemon.json as "insecure-registries".
+  # check version of Docker
+  - docker --version
   script:
-    # login to Nexus Docker repository
-    - docker login -u "$NEXUS_USER" -p "$NEXUS_PASSWORD" "$NEXUS_SERVER"
-    # build tsimulus-saas
-    - sbt clean package
-    # publish Backend Docker image to Nexus Repository
-    - sbt "backend/docker:publish"
+  # login to Nexus Docker repository
+  - docker login -u "$NEXUS_USER" -p "$NEXUS_PASSWORD" "$NEXUS_SERVER"
+  # build tsimulus-saas
+  - sbt clean package
+  # publish Backend Docker image to Nexus Repository
+  - sbt "backend/docker:publish"
   tags:
   - shared
-  
+
 deployDev:
   stage: deployDev
   image: ebits/openshift-client:v3.6.0
   before_script:
-    - oc login "$OPENSHIFT_SERVER" --token="$OPENSHIFT_DEV_TOKEN" --insecure-skip-tls-verify
-    - oc project $PROJECT
+  - oc login "$OPENSHIFT_SERVER" --token="$OPENSHIFT_DEV_TOKEN" --insecure-skip-tls-verify
+  - oc project $PROJECT
   script:
-    - echo deploy to OpenShift
-    # remove old pods
-    - "oc get services $APP 2> /dev/null && oc delete -f k8s/tsaas-backend-statefulset.yml"
-    ## Issue when trying to delete the statefulset https://github.com/kubernetes/kubernetes/issues/59867 Bug car pas même version de kubectl client - seveur
-    # create new pods
-    - "oc create -f k8s/tsaas-backend-statefulset.yml"
-    - "oc get routes $APP 2> /dev/null || oc expose service $APP --hostname=$APP_HOST"
+  - echo deploy to OpenShift
+  # remove old pods
+  - "oc get services $APP 2> /dev/null && oc delete -f k8s/tsaas-backend-statefulset.yml"
+  ## Issue when trying to delete the statefulset https://github.com/kubernetes/kubernetes/issues/59867 Bug car pas même version de kubectl client - seveur
+  # create new pods
+  - "oc create -f k8s/tsaas-backend-statefulset.yml"
+  - "oc get routes $APP 2> /dev/null || oc expose service $APP --hostname=$APP_HOST"
   tags:
   - docker
   variables:
@@ -54,22 +55,22 @@ deployDev:
     name: develop
     url: http://tsaas-api.$OPENSHIFT_DOMAIN
   except:
-    - master
+  - master
 
 deployProd:
   stage: deployProd
   image: ebits/openshift-client:v3.6.0
   before_script:
-    - oc login "$OPENSHIFT_SERVER" --token="$OPENSHIFT_PROD_TOKEN" --insecure-skip-tls-verify
-    - oc project $PROJECT
+  - oc login "$OPENSHIFT_SERVER" --token="$OPENSHIFT_PROD_TOKEN" --insecure-skip-tls-verify
+  - oc project $PROJECT
   script:
-    - echo deploy to OpenShift
-    # remove old pods
-    - "oc get services $APP 2> /dev/null && oc delete -f k8s/tsaas-backend-statefulset.yml"
-    ## Issue when trying to delete the statefulset https://github.com/kubernetes/kubernetes/issues/59867 Bug car pas même version de kubectl client - seveur
-    # create new pods
-    - "oc create -f k8s/tsaas-backend-statefulset.yml"
-    - "oc get routes $APP 2> /dev/null || oc expose service $APP --hostname=$APP_HOST"
+  - echo deploy to OpenShift
+  # remove old pods
+  - "oc get services $APP 2> /dev/null && oc delete -f k8s/tsaas-backend-statefulset.yml"
+  ## Issue when trying to delete the statefulset https://github.com/kubernetes/kubernetes/issues/59867 Bug car pas même version de kubectl client - seveur
+  # create new pods
+  - "oc create -f k8s/tsaas-backend-statefulset.yml"
+  - "oc get routes $APP 2> /dev/null || oc expose service $APP --hostname=$APP_HOST"
   tags:
   - docker
   variables:

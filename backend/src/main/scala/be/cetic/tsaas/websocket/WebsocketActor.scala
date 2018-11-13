@@ -50,7 +50,24 @@ class WebsocketActor[T](wsSourceActor: ActorRef) extends Actor with ActorLogging
   private var maybeNextDelay: Option[FiniteDuration] = None
 
 
-  def receive: Actor.Receive = {
+
+  override def postStop(): Unit = {
+    log.info("Websocket Actor stopping")
+  }
+
+  def errorHandler(receiv: Receive): Actor.Receive = {
+    try {
+      receiv
+    }
+    catch{case t: Throwable =>
+      log.error(t.getMessage)
+      throw t
+    }
+  }
+
+  def receive: Receive = errorHandler(onReceive)
+
+  def onReceive: Actor.Receive = {
     case Configure(config) => streamConfig = Some(config)
 
     case Validate =>sender ! consumeAndConfirm(sender, once=true)

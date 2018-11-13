@@ -24,7 +24,7 @@ object Dependencies {
     "org.webjars" % "bootstrap" % "3.2.0" exclude ("org.webjars", "jquery"),
     "org.webjars" % "bootswatch-yeti" % "3.2.0" exclude ("org.webjars", "jquery"),
     "org.webjars" % "angularjs" % "1.2.16-2" exclude ("org.webjars", "jquery"),
-	"org.webjars" % "swagger-ui" % "2.2.0"
+	"org.webjars" % "be.cetic.tsaas.swagger-ui" % "2.2.0"
   )
 
   val metrics = Seq(

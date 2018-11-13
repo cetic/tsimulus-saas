@@ -5,10 +5,14 @@ import be.cetic.rtsgen.config.Configuration
 import be.cetic.tsaas.datastream.TimedIterator
 import be.cetic.tsaas.datastream.tsimulus.TsimulusIterator.{InfiniteSpeed, Realtime, SpeedFactor}
 import be.cetic.tsaas.utils.templates.FreeMarkerParser
+import io.swagger.v3.oas.annotations.ExternalDocumentation
+import io.swagger.v3.oas.annotations.media.Schema
 
 import scala.concurrent.duration.{FiniteDuration, _}
 
 object TsimulusIterator {
+
+
 
   trait Speed
 
@@ -18,10 +22,15 @@ object TsimulusIterator {
 
   case object Realtime extends Speed
 
-  case class Template(template: String, timeVariable: String, nameVariable: String, valueVariable: String)
+
+  case class Template(template: String,
+                      timeVariable: String,
+                      nameVariable: String,
+                      valueVariable: String)
 
   val defaultTemplate = Template("${TIME};${NAME};${VALUE}", "TIME", "NAME", "VALUE")
 
+  case class TemplateMap(seriesName: String, template: Template)
 
   object TsimulusConfig {
     def apply(config: Configuration, speed: Speed, template: Template): TsimulusConfig = {
@@ -33,7 +42,13 @@ object TsimulusIterator {
       val templateMap = configuration.series.map(_.name -> defaultTemplate).toMap
       TsimulusConfig(configuration, speed, templateMap)
     }
+
+    def apply(configuration: Configuration,speed:Speed, templateMaps:Seq[TemplateMap]):TsimulusConfig ={
+      val map = templateMaps.map(el=>el.seriesName->el.template).toMap
+      TsimulusConfig(configuration, speed, map)
+    }
   }
+
 
   case class TsimulusConfig(config: Configuration, speed: Speed, template: Map[String, Template]) extends TimedIterator.Config {
     override val description: String = s"Tsimulus time series ${config.series.map(_.name).mkString(", ")} with speed factor $speed}"
@@ -49,8 +64,8 @@ class TsimulusIterator(val config: TsimulusIterator.TsimulusConfig) extends Time
     stream.map { case (dateTime, name, value) =>
       val pattern = config.template(name)
       val freeMarkerTemplate = new FreeMarkerParser(pattern.template)
-      val tValue =  dateTime.toDateTime.getMillis
-      val dataModel = Map(pattern.timeVariable ->tValue, pattern.valueVariable->value, pattern.nameVariable->name)
+      val tValue = dateTime.toDateTime.getMillis
+      val dataModel = Map(pattern.timeVariable -> tValue, pattern.valueVariable -> value, pattern.nameVariable -> name)
 
 
       def result: String = freeMarkerTemplate.process(dataModel)

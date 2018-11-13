@@ -8,31 +8,26 @@ import akka.http.scaladsl.server.Directives.{JavaUUID, as, complete, delete, ent
 import akka.http.scaladsl.server.Route
 import be.cetic.tsaas.datastream.{TimedIterator, TimedIteratorConfigJsonProtocol}
 import be.cetic.tsaas.utils.json.UUIDJsonProtocol
-import io.swagger.v3.oas.annotations.enums.ParameterIn
-import io.swagger.v3.oas.annotations.media.{Content, Schema}
-import io.swagger.v3.oas.annotations.parameters.RequestBody
-import io.swagger.v3.oas.annotations.{Operation, Parameter}
-import javax.ws.rs._
 import spray.json.DefaultJsonProtocol
 
 
 object StreamActionSchema {
 
-  case class Action(@Schema(required = true, `type` = "string", allowableValues = Array("start", "stop", "validate", "status")) action: String)
+  case class Action(action: String)
 
 }
 
-@Path("stream/{wsId}")
-class StreamOperation(wsFactory: WebsocketFactory) extends TimedIteratorConfigJsonProtocol with WebsocketActorJsonProtocol with UUIDJsonProtocol with DefaultJsonProtocol with SprayJsonSupport {
+class StreamOperation(wsFactory: WebsocketFactory) extends TimedIteratorConfigJsonProtocol with WebsocketActorJsonProtocol
+  with UUIDJsonProtocol with DefaultJsonProtocol with SprayJsonSupport {
 
 
   val streamRoutes: Route = pathPrefix(JavaUUID) { wsId =>
     pathEnd(createOrUpdateConfig(wsId) ~ readConfig(wsId) ~ deleteConfig(wsId)) ~
-      act(wsId)
+      act(wsId) ~ websocket(wsId)
   }
 
 
-  def websocket(wsId: UUID) = {
+  def websocket(wsId: UUID): Route = {
     path("ws") {
       handleWebSocketMessages {
         wsFactory.getOrCreateWebsocketHandler(wsId).flow
@@ -40,9 +35,8 @@ class StreamOperation(wsFactory: WebsocketFactory) extends TimedIteratorConfigJs
     }
   }
 
-  @Operation(description = "Post a configuration to the ws with given uuid")
-  @POST
-  def createOrUpdateConfig(@Parameter(name = "wsId", in = ParameterIn.PATH, description = "UUID of the websocket") wsId: UUID) = {
+
+  def createOrUpdateConfig(wsId: UUID): Route = {
     post {
       entity(as[TimedIterator.Config]) { config =>
         complete {
@@ -52,9 +46,7 @@ class StreamOperation(wsFactory: WebsocketFactory) extends TimedIteratorConfigJs
     }
   }
 
-  @Operation(description = "Read the configuration of the ws with given uuid")
-  @GET
-  def readConfig(@Parameter(name = "wsId", in = ParameterIn.PATH, description = "UUID of the websocket") wsId: UUID) = {
+  def readConfig(wsId: UUID): Route = {
     get {
       complete {
         wsFactory.readConfig(wsId)
@@ -62,22 +54,16 @@ class StreamOperation(wsFactory: WebsocketFactory) extends TimedIteratorConfigJs
     }
   }
 
-  @Operation(description = "Delete the configuration of ws with given uuid")
-  @DELETE
-  def deleteConfig(@Parameter(name = "wsId", in = ParameterIn.PATH, description = "UUID of the websocket") wsId: UUID) = {
+  def deleteConfig(wsId: UUID): Route = {
     delete {
       complete {
         wsFactory.deleteConfig(wsId)
-        s"Configuration $wsId deleted."
+        StatusCodes.NoContent
       }
     }
   }
 
-  @Path("/act")
-  @Operation(description = "Send an action to the websocket handler.",
-    requestBody = new RequestBody(content = Array(new Content(schema = new Schema(implementation = classOf[StreamActionSchema.Action])))))
-  @POST
-  def act( @Parameter(name = "wsId", in = ParameterIn.PATH, description = "UUID of the websocket") wsId: UUID) = {
+  def act(wsId: UUID): Route = {
     path("act") {
       post {
         entity(as[WebsocketActor.Operation]) { operation =>

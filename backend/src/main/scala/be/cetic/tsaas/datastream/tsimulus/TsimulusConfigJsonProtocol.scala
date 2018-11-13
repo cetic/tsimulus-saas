@@ -13,7 +13,7 @@ trait TsimulusConfigJsonProtocol extends DefaultJsonProtocol with SprayJsonSuppo
         case SpeedFactor(factor) => JsObject(Map("speed" -> JsNumber(factor)))
         case InfiniteSpeed => JsObject(Map("speed" -> JsString("inf")))
         case Realtime => JsObject(Map("speed"->JsString("realtime")))
-        case x => throw new DeserializationException(s"Unknown speed factor $x")
+        case x => throw DeserializationException(s"Unknown speed factor $x")
       }
     }
 
@@ -31,6 +31,7 @@ trait TsimulusConfigJsonProtocol extends DefaultJsonProtocol with SprayJsonSuppo
   }
 
   implicit val templateJsonFormat: RootJsonFormat[Template] = jsonFormat4(Template)
+  implicit val templateMapJsonFormat: RootJsonFormat[TemplateMap] = jsonFormat2(TemplateMap)
 
   implicit object TsimulusConfigJsonFormat extends RootJsonFormat[TsimulusConfig] {
     override def write(obj: TsimulusConfig): JsValue = {
@@ -54,7 +55,7 @@ trait TsimulusConfigJsonProtocol extends DefaultJsonProtocol with SprayJsonSuppo
             TsimulusConfig(config, speed, template)
           }
           else {
-            val template = jsMap("template").convertTo[Map[String, Template]]
+            val template = jsMap("template").convertTo[Seq[TemplateMap]]
             TsimulusConfig(config, speed, template)
           }
         }

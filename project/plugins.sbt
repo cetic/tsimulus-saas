@@ -23,9 +23,9 @@ addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.4.0")
 
 addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "5.2.4")
 
-// addSbtPlugin("com.iheart" % "sbt-play-swagger" % "0.6.5")
+// addSbtPlugin("com.iheart" % "sbt-play-be.cetic.tsaas.swagger" % "0.6.5")
 
-addSbtPlugin("com.iheart" % "sbt-play-swagger" % "0.6.0-PLAY2.4")
+addSbtPlugin("com.iheart" % "sbt-play-be.cetic.tsaas.swagger" % "0.6.0-PLAY2.4")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "0.9.3")
 //https://blog.softwaremill.com/meaningful-docker-image-tags-made-with-build-tools-c8877cd21da9

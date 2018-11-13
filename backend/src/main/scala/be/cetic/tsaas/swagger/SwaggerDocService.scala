@@ -1,5 +1,6 @@
-package be.cetic.tsaas.websocket
+package be.cetic.tsaas.swagger
 
+import be.cetic.tsaas.websocket.{StreamOperation, WebSocketService}
 import com.github.swagger.akka.SwaggerHttpService
 import io.swagger.v3.oas.models.ExternalDocumentation
 

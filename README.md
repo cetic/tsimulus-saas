@@ -129,11 +129,11 @@ If using git: simplified version of [Git Flow](http://nvie.com/posts/a-successfu
 
 #### Swagger
 
-Automaticaly generate Swagger Specs for TSimulus Cluster API: https://github.com/iheartradio/play-swagger
-The sbt-play-swagger plugin generates the swagger.json on `sbt run` or `sbt package`.
-Swagger UI is available at http://localhost:9000/docs/swagger-ui/index.html?url=/assets/swagger.json
-It uses the swagger-ui webjar and our play app serves the swagger ui.
-(libraryDependencies += "org.webjars" % "swagger-ui" % "2.2.0")
+Automaticaly generate Swagger Specs for TSimulus Cluster API: https://github.com/iheartradio/play-be.cetic.tsaas.swagger
+The sbt-play-be.cetic.tsaas.swagger plugin generates the be.cetic.tsaas.swagger.json on `sbt run` or `sbt package`.
+Swagger UI is available at http://localhost:9000/docs/be.cetic.tsaas.swagger-ui/index.html?url=/assets/be.cetic.tsaas.swagger.json
+It uses the be.cetic.tsaas.swagger-ui webjar and our play app serves the be.cetic.tsaas.swagger ui.
+(libraryDependencies += "org.webjars" % "be.cetic.tsaas.swagger-ui" % "2.2.0")
 
 #### Kafka
  

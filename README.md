@@ -56,6 +56,20 @@ The `/vagrant` folder in the VM is shared with the folder where the `Vagrantfile
 
 ### 0.3. Local development development with Minikube
 
+#### 0.3.1. Install Minikube
+
+* Install VirtualBox: https://www.virtualbox.org/wiki/Downloads
+* Install Kubectl: https://kubernetes.io/docs/tasks/tools/install-kubectl/
+* Install Minikube: https://github.com/kubernetes/minikube/releases
+
+#### 0.3.2. Deploy the project
+
+To get the Kubernetes dashboard, type: `minikube dashboard` 
+
+```
+kubectl create -f tsimulus-backend-statefulset.yml
+```
+
 ## 1. Functional specifications
 
 ### 1.1. TSimulus as a service
@@ -148,6 +162,7 @@ TBD
 * https://docs.openshift.com/container-platform/3.5/dev_guide/managing_images.html#allowing-pods-to-reference-images-from-other-secured-registries
 * http://v1.uncontained.io/playbooks/continuous_delivery/external-docker-registry-integration.html
 * allow publishing on Nexus
+* pulling images from OpenShift: https://docs.openshift.com/enterprise/3.0/dev_guide/image_pull_secrets.html
 * deploy akka cluster on kubernetes: https://medium.com/google-cloud/clustering-akka-in-kubernetes-with-statefulset-and-deployment-459c0e05f2ea
 
 ? unit testing

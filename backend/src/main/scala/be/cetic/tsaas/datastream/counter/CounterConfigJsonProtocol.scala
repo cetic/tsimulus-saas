@@ -22,7 +22,7 @@ trait CounterConfigJsonProtocol extends DefaultJsonProtocol with SprayJsonSuppor
       val jsDelay = JsObject(
         Map(
           "length" -> JsNumber(config.delay.length),
-          "unit" -> JsString(durationUnit),
+          "unit" -> JsString(durationUnit)
         )
       )
       JsObject(Map("up_to" -> JsNumber(config.upTo), "delay" -> jsDelay, "type" -> JsString("counter"), "description" -> JsString(description)))
@@ -37,5 +37,4 @@ trait CounterConfigJsonProtocol extends DefaultJsonProtocol with SprayJsonSuppor
       TimedCounter.CounterConfig(upTo, FiniteDuration(length, unit))
     }
   }
-
 }

@@ -21,9 +21,12 @@ object Backend extends App {
   implicit val system = ActorSystem("TSaaS-Backend")
   implicit val materializer: ActorMaterializer =  ActorMaterializer()
   implicit val dispatcher : ExecutionContextExecutor = system.dispatcher
+
   val routes: Route = new TSaaService().routes
 
-  val bindingFuture = Http().bindAndHandle(routes, "localhost", port)
+  val bindingInterface = sys.env.getOrElse("BINDING", "localhost")
+
+  val bindingFuture = Http().bindAndHandle(routes, bindingInterface, port)
   println(s"Server online at http://localhost:$port/\nPress RETURN to stop...")
   StdIn.readLine() // let it run until user presses return
   bindingFuture

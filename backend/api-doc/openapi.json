@@ -39,7 +39,7 @@
         "description": "Posts a stream configuration and assigns a stream id",
         "requestBody": {
           "content": {
-            "application/json'": {
+            "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/StreamConfiguration"
               }
@@ -272,63 +272,65 @@
           },
           "config": {
             "$ref": "#/components/schemas/TsimulusConfiguration"
+          },
+          "type": {
+            "type": "string",
+            "example": "tsimulus"
           }
         },
         "example": {
-          "example": {
-            "config": {
-              "generators": [
-                {
-                  "name": "daily-generator",
-                  "type": "daily",
-                  "points": {
-                    "6:00:00.000": 11,
-                    "12:00:00.000": 12,
-                    "18:00:00.000": 11,
-                    "0:00:00.000": 12
+          "config": {
+            "generators": [
+              {
+                "name": "daily-generator",
+                "type": "daily",
+                "points": {
+                  "6:00:00.000": 11,
+                  "12:00:00.000": 12,
+                  "18:00:00.000": 11,
+                  "0:00:00.000": 12
+                }
+              },
+              {
+                "name": "noisy-daily",
+                "type": "aggregate",
+                "aggregator": "sum",
+                "generators": [
+                  "daily-generator",
+                  {
+                    "type": "arma",
+                    "model": {
+                      "phi": [
+                        0.5
+                      ],
+                      "std": 0.25,
+                      "c": 0,
+                      "seed": 159357
+                    },
+                    "timestep": 180000,
+                    "origin": "2018-10-01 0:00:00.000"
                   }
-                },
-                {
-                  "name": "noisy-daily",
-                  "type": "aggregate",
-                  "aggregator": "sum",
-                  "generators": [
-                    "daily-generator",
-                    {
-                      "type": "arma",
-                      "model": {
-                        "phi": [
-                          0.5
-                        ],
-                        "std": 0.25,
-                        "c": 0,
-                        "seed": 159357
-                      },
-                      "timestep": 180000,
-                      "origin": "2018-10-01 0:00:00.000"
-                    }
-                  ]
-                }
-              ],
-              "exported": [
-                {
-                  "name": "tlm_1",
-                  "generator": "noisy-daily",
-                  "frequency": 3600000
-                }
-              ],
-              "from": "2018-10-01 00:00:00.000",
-              "to": "2018-12-01 00:00:00.000"
-            },
-            "template": {
-              "template": "",
-              "timeVariable": "t",
-              "nameVarialbe": "name",
-              "valueVariable": "x"
-            },
-            "type": "tsimulus",
-            "speed": 3600
-          }
+                ]
+              }
+            ],
+            "exported": [
+              {
+                "name": "tlm_1",
+                "generator": "noisy-daily",
+                "frequency": 3600000
+              }
+            ],
+            "from": "2018-10-01 00:00:00.000",
+            "to": "2018-12-01 00:00:00.000"
+          },
+          "template": {
+            "template": "{\n\"msg_dt\": \"${t?number_to_datetime?string[\"yyyy-MM-dd'T'HH:mm:ss.'000000Z'\"]}\",\n\"serial_number\": \"18600006\",\n  \"n_devices\": 1,\n  \"device_1\": {\n    \"metadata\": {\n      \"n\": 1,\n      \"name\": \"periodic_example\",\n      \"location\": \"Micromega Dynamics\",\n      \"latitude\": 50.701874,\n      \"longitude\": 4.594015,\n      \"n_channels\": 1,\n      \"type\": 1,\n      \"remote_processing\": 1,\n      \"tlm_type\": 1\n    },\n    \"channel_0\": {\n      \"n\": 0,\n      \"name\": \"example_0\",\n      \"units\": \"mA\",\n      \"local_processing\": 0,\n      \"sampling_f\": 250,\n      \"n_stats\": 0,\n      \"rms_data\": \"\",\n      \"avg_data\": \"\",\n      \"min_data\": \"\",\n      \"max_data\": \"\",\n      \"peak_peak_data\": \"\",\n      \"peak_data\": \"\",\n      \"skewness_data\": \"\",\n      \"kurtosis_data\": \"\",\n      \"std_data\": \"\",\n      \"n_events\": 0,\n      \"warning\": \"\",\n      \"alarm\": \"\",\n      \"n_raw_data\": 250,\n      \"raw_data\": \"${b64(\"little\", noise(1,replicate(250, x)))}\"\n    }\n  }\n}",
+            "timeVariable": "t",
+            "nameVariable": "name",
+            "valueVariable": "x"
+          },
+          "speed": 3600,
+          "type": "tsimulus"
         }
       },
       "Speed": {

@@ -1,6 +1,6 @@
 import Dependencies.Version
 
-name := "tsimulus-saas-backend"
+name := "tsaas-backend"
 
 version:= "0.1"
 

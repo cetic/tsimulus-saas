@@ -7,8 +7,8 @@ import scala.concurrent.duration.FiniteDuration
 
 trait CounterConfigJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
 
-  implicit object CounterConfigJsonFormat extends RootJsonFormat[TimedCounter.CounterConfig] {
-    def write(config: TimedCounter.CounterConfig): JsValue = {
+  implicit object CounterConfigJsonFormat extends RootJsonFormat[TimedCounter.CounterStreamConfig] {
+    def write(config: TimedCounter.CounterStreamConfig): JsValue = {
       val durationUnit = config.delay.unit match {
         case java.util.concurrent.TimeUnit.DAYS => "day"
         case java.util.concurrent.TimeUnit.HOURS => "hour"
@@ -28,13 +28,13 @@ trait CounterConfigJsonProtocol extends DefaultJsonProtocol with SprayJsonSuppor
       JsObject(Map("up_to" -> JsNumber(config.upTo), "delay" -> jsDelay, "type" -> JsString("counter"), "description" -> JsString(description)))
     }
 
-    def read(json: JsValue): TimedCounter.CounterConfig = {
+    def read(json: JsValue): TimedCounter.CounterStreamConfig = {
       val jsonMap = json.asJsObject().fields
       val upTo = jsonMap("up_to").asInstanceOf[JsNumber].value.toInt
       val jsDelay = jsonMap("delay").asJsObject().fields
       val length = jsDelay("length").asInstanceOf[JsNumber].value.toInt
       val unit = jsDelay("unit").asInstanceOf[JsString].value
-      TimedCounter.CounterConfig(upTo, FiniteDuration(length, unit))
+      TimedCounter.CounterStreamConfig(upTo, FiniteDuration(length, unit))
     }
   }
 

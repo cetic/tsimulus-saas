@@ -32,31 +32,31 @@ object TsimulusIterator {
 
   case class TemplateMap(seriesName: String, template: Template)
 
-  object TsimulusConfig {
-    def apply(config: Configuration, speed: Speed, template: Template): TsimulusConfig = {
+  object TsimulusStreamConfig {
+    def apply(config: Configuration, speed: Speed, template: Template): TsimulusStreamConfig = {
       val templateMap = config.series.map(_.name -> template).toMap
-      TsimulusConfig(config, speed, templateMap)
+      TsimulusStreamConfig(config, speed, templateMap)
     }
 
-    def apply(configuration: Configuration, speed: Speed): TsimulusConfig = {
+    def apply(configuration: Configuration, speed: Speed): TsimulusStreamConfig = {
       val templateMap = configuration.series.map(_.name -> defaultTemplate).toMap
-      TsimulusConfig(configuration, speed, templateMap)
+      TsimulusStreamConfig(configuration, speed, templateMap)
     }
 
-    def apply(configuration: Configuration,speed:Speed, templateMaps:Seq[TemplateMap]):TsimulusConfig ={
+    def apply(configuration: Configuration,speed:Speed, templateMaps:Seq[TemplateMap]):TsimulusStreamConfig ={
       val map = templateMaps.map(el=>el.seriesName->el.template).toMap
-      TsimulusConfig(configuration, speed, map)
+      TsimulusStreamConfig(configuration, speed, map)
     }
   }
 
 
-  case class TsimulusConfig(config: Configuration, speed: Speed, template: Map[String, Template]) extends TimedIterator.Config {
+  case class TsimulusStreamConfig(config: Configuration, speed: Speed, template: Map[String, Template]) extends TimedIterator.StreamConfig {
     override val description: String = s"Tsimulus time series ${config.series.map(_.name).mkString(", ")} with speed factor $speed}"
   }
 
 }
 
-class TsimulusIterator(val config: TsimulusIterator.TsimulusConfig) extends TimedIterator[String] {
+class TsimulusIterator(val config: TsimulusIterator.TsimulusStreamConfig) extends TimedIterator[String] {
 
   private def makeIterator: Iterator[(Long, String)] = {
     val stream = Utils.generate(Utils.config2Results(config.config))

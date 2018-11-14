@@ -1,6 +1,6 @@
 package be.cetic.tsaas.datastream
 
-import be.cetic.tsaas.datastream.TimedIterator.Config
+import be.cetic.tsaas.datastream.TimedIterator.StreamConfig
 import be.cetic.tsaas.datastream.counter.TimedCounter
 import be.cetic.tsaas.datastream.tsimulus.TsimulusIterator
 
@@ -8,15 +8,15 @@ import scala.concurrent.duration.FiniteDuration
 
 object TimedIterator {
 
-  trait Config {
+  trait StreamConfig {
     val description: String = ""
   }
 
-  def factory[T](config: Config): TimedIterator[T] = {
+  def factory[T](config: StreamConfig): TimedIterator[T] = {
 
     config match {
-      case c: TimedCounter.CounterConfig => new TimedCounter(c)
-      case c: TsimulusIterator.TsimulusConfig => new TsimulusIterator(c)
+      case c: TimedCounter.CounterStreamConfig => new TimedCounter(c)
+      case c: TsimulusIterator.TsimulusStreamConfig => new TsimulusIterator(c)
       case _ => throw new Exception("Undefined timed iterator type")
     }
   }.asInstanceOf[TimedIterator[T]]
@@ -24,7 +24,7 @@ object TimedIterator {
 
 
 trait TimedIterator[T] {
-  val config: Config
+  val config: StreamConfig
   val iterator: Iterator[(Long, T)]
   val dropBeforeNow = false
 

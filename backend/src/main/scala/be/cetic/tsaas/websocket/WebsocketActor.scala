@@ -12,7 +12,7 @@ object WebsocketActor {
 
   case object WsDropped
 
-  case class Configure(config: TimedIterator.Config)
+  case class Configure(config: TimedIterator.StreamConfig)
 
   trait Operation
 
@@ -45,7 +45,7 @@ class WebsocketActor[T](wsSourceActor: ActorRef) extends Actor with ActorLogging
 
   private var emptyIterator: Boolean = false
 
-  private var streamConfig: Option[TimedIterator.Config] = None
+  private var streamConfig: Option[TimedIterator.StreamConfig] = None
 
   private var maybeNextDelay: Option[FiniteDuration] = None
 
@@ -112,6 +112,7 @@ class WebsocketActor[T](wsSourceActor: ActorRef) extends Actor with ActorLogging
       catch {
         case t: Throwable =>
           StreamingNotStarted(t)
+          //TODO : Create Template specific exception.
       }
     }
   }

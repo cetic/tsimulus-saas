@@ -5,7 +5,7 @@ import be.cetic.tsaas.datastream.tsimulus.TsimulusIterator._
 import be.cetic.rtsgen.config.Configuration
 import spray.json.{DefaultJsonProtocol, JsNumber, JsObject, JsString, JsValue, RootJsonFormat, _}
 
-trait TsimulusConfigJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
+trait TsimulusStreamConfigJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
 
   implicit object SpeedJsonFormat extends RootJsonFormat[Speed] {
     def write(s: Speed): JsValue = {
@@ -13,7 +13,7 @@ trait TsimulusConfigJsonProtocol extends DefaultJsonProtocol with SprayJsonSuppo
         case SpeedFactor(factor) => JsObject(Map("speed" -> JsNumber(factor)))
         case InfiniteSpeed => JsObject(Map("speed" -> JsString("inf")))
         case Realtime => JsObject(Map("speed"->JsString("realtime")))
-        case x => throw new DeserializationException(s"Unknown speed factor $x")
+        case x => throw DeserializationException(s"Unknown speed factor $x")
       }
     }
 
@@ -31,9 +31,10 @@ trait TsimulusConfigJsonProtocol extends DefaultJsonProtocol with SprayJsonSuppo
   }
 
   implicit val templateJsonFormat: RootJsonFormat[Template] = jsonFormat4(Template)
+  implicit val templateMapJsonFormat: RootJsonFormat[TemplateMap] = jsonFormat2(TemplateMap)
 
-  implicit object TsimulusConfigJsonFormat extends RootJsonFormat[TsimulusConfig] {
-    override def write(obj: TsimulusConfig): JsValue = {
+  implicit object TsimulusConfigJsonFormat extends RootJsonFormat[TsimulusStreamConfig] {
+    override def write(obj: TsimulusStreamConfig): JsValue = {
       val map = Map(
         "config" -> obj.config.toJson,
         "speed" -> obj.speed.toJson,
@@ -43,7 +44,7 @@ trait TsimulusConfigJsonProtocol extends DefaultJsonProtocol with SprayJsonSuppo
       JsObject(map)
     }
 
-    override def read(json: JsValue): TsimulusConfig = {
+    override def read(json: JsValue): TsimulusStreamConfig = {
       val jsMap = json.asJsObject().fields
       val config = Configuration(jsMap("config"))
       val speed = if (jsMap.keys.toSeq.contains("speed")) json.convertTo[Speed] else SpeedFactor(1)
@@ -51,14 +52,14 @@ trait TsimulusConfigJsonProtocol extends DefaultJsonProtocol with SprayJsonSuppo
         .map { template =>
           if (template.asJsObject.fields.keySet.diff(Set("template", "timeVariable", "nameVariable", "valueVariable")).isEmpty) {
             val template = jsMap.get("template").map(_.convertTo[Template]).getOrElse(defaultTemplate)
-            TsimulusConfig(config, speed, template)
+            TsimulusStreamConfig(config, speed, template)
           }
           else {
-            val template = jsMap("template").convertTo[Map[String, Template]]
-            TsimulusConfig(config, speed, template)
+            val template = jsMap("template").convertTo[Seq[TemplateMap]]
+            TsimulusStreamConfig(config, speed, template)
           }
         }
-        .getOrElse(TsimulusConfig(config, speed))
+        .getOrElse(TsimulusStreamConfig(config, speed))
     }
   }
 

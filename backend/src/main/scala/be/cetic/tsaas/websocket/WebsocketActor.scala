@@ -12,7 +12,7 @@ object WebsocketActor {
 
   case object WsDropped
 
-  case class Configure(config: TimedIterator.Config)
+  case class Configure(config: TimedIterator.StreamConfig)
 
   trait Operation
 
@@ -45,12 +45,29 @@ class WebsocketActor[T](wsSourceActor: ActorRef) extends Actor with ActorLogging
 
   private var emptyIterator: Boolean = false
 
-  private var streamConfig: Option[TimedIterator.Config] = None
+  private var streamConfig: Option[TimedIterator.StreamConfig] = None
 
   private var maybeNextDelay: Option[FiniteDuration] = None
 
 
-  def receive: Actor.Receive = {
+
+  override def postStop(): Unit = {
+    log.info("Websocket Actor stopping")
+  }
+
+  def errorHandler(receiv: Receive): Actor.Receive = {
+    try {
+      receiv
+    }
+    catch{case t: Throwable =>
+      log.error(t.getMessage)
+      throw t
+    }
+  }
+
+  def receive: Receive = errorHandler(onReceive)
+
+  def onReceive: Actor.Receive = {
     case Configure(config) => streamConfig = Some(config)
 
     case Validate =>sender ! consumeAndConfirm(sender, once=true)
@@ -95,6 +112,7 @@ class WebsocketActor[T](wsSourceActor: ActorRef) extends Actor with ActorLogging
       catch {
         case t: Throwable =>
           StreamingNotStarted(t)
+          //TODO : Create Template specific exception.
       }
     }
   }

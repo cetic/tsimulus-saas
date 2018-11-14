@@ -21,7 +21,5 @@ libraryDependencies := Seq(
   "org.scalatest" %% "scalatest" % "3.0.0" % "test",
   "org.freemarker" % "freemarker" % "2.3.28",
   "javax.ws.rs" % "javax.ws.rs-api" % "2.0.1",
-  "com.github.be.cetic.tsaas.swagger-akka-http" %% "be.cetic.tsaas.swagger-akka-http" % "2.0.0",
-  "com.github.be.cetic.tsaas.swagger-akka-http" %% "be.cetic.tsaas.swagger-scala-module" % "2.0.2",
   "ch.megard" %% "akka-http-cors" % "0.3.0"
 )

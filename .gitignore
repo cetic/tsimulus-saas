@@ -12,3 +12,5 @@ project/target
 provisioning/roles/geerlingguy.*
 provisioning/roles/mpathira.*
 provisioning/ansible/*
+
+.DS_Store

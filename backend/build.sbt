@@ -6,7 +6,7 @@ version:= "0.1"
 
 
 mainClass in(Compile, run) := Some("be.cetic.tsaas.Backend")
-mainClass in(Compile, packageBin) := Some("be.cetic.backend.Backend")
+mainClass in(Compile, packageBin) := Some("be.cetic.tsaas.Backend")
 
 libraryDependencies := Seq(
   "com.github.scopt" %% "scopt" % "3.5.0",

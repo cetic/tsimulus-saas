@@ -6,6 +6,149 @@ This repository is a rework of https://git.cetic.be/TSimulus/tsimulus-cluster
 
 ## Goal
 
+his project contains the high level documentation for the TSimulus SaaS project.
+The aim of this work is to provide a self service that showcases TSimulus capabilities.
+
+The project aims at building a REST API in front of the [TSimulus](https://github.com/cetic/TSimulus) framework, and a set of configurable websocket routes to consume the Tsimulus stream.
+
+The project is strucured as a sbt multiproject, each part are runnable as standalone and the top level project coordinates a complete deployment and coordination of each parts.
+In the following it is assumed that sbt is installed in your system.
+
+## Sub-Projects
+### Tsimulus backend
+
+The backend implements the core logic for the stream handling. 
+It includes
+ - wrapping the [TSimulus](https://github.com/cetic/TSimulus) for generating streams,
+ - exposing a configuration and control REST API,
+ - exposing websocket routes fed by outputs of the generator
+ - handling the timing of data injection into the websockets.
+ - processing templates for custom rendering of the generated datae.
+ 
+### Getting started
+In order to run the backend server, log into the project directory and run 
+````sh
+sbt run
+```` 
+or from the root project, run
+````sh
+sbt backend/run
+````
+ 
+### Creating a websocket route
+
+The websockets are exposed at the following URL:
+```
+ws://your.domain.be/socket/<UUID>
+```
+where <UUID> is a UUID.
+ 
+ 
+The websocket handlers are built on the fly, when one of the two following condition is met:
+
+  - A user connects to a websocket route:
+  the server will create a stream with the uuid provided in the socket route.
+  - A user posts a configuration: 
+    - Letting the server define a socket id
+    - choosing socket id. In this case, successive posts will update the configuration.
+  
+The configuration routes provide a CRUD api to manage the stream configurations, 
+the control API exposes a set of action to manage the stream consuption. 
+These APIs are documented in the next subproject, exposing a comoplete Open Api Specification and an API explorer.
+
+### Stream configuration
+
+A stream configuration consists in 
+  - A Tsimulus configuration
+  - A consumption speed 
+  - A template
+  - A type variable, set to "tsimulus" for tsimulus streams.
+  
+The stream configuation is to be sent in a json object to the stream configuration api:
+```json
+{
+  "configuration": ...,
+  "template": ...,
+  "speed": ...,
+  "type": "tsimulus"
+}
+```
+  
+#### Tsimulus configuration
+Please refer to the official [Tsimulus documentation](https://tsimulus.readthedocs.io/en/latest/) for proper formatting.    
+
+### Template
+
+The template object includes has the schema:
+````json
+{
+  "template": "string",
+  "timeVariable": "string",
+  "nameVariable": "string",
+  "valueVariavle": "string"
+}
+````
+The template string is processed by the [Apache FreeMarker](http://www.freemarker.org) engine. 
+We refer the user to the official documentation.
+
+We additionally provide 3 custom functions in the template :
+  - b64("little"|"big", number | list of numbers):
+  This function converts each numbers to 32 bits floats and converts the resulting byte array to base 64, using **little** or **big** endianness.   
+  - replicate(n, x): converts the value to a list of size n with the same value x.
+  - noise(?std, x): adds random noise to x. For numeric values of x, gaussian noise is added, with a null expectation value and a standrad deviation given by std.
+  
+The timeVariable, nameVariable and valueVariable variables represents respectively the names of the time, name and value variables in the template.   
+
+
+### Speed
+The speed parameter can be a string or a number.
+Each elements of a tsimulus stream comes with a timestamp and a value. 
+The stream can be consumed in three different ways: 
+  - realtime: 
+  The value is pushed in the websocket when the present datetime given by the server corresponds to the generated timestamp.    
+  - Speed factor: 
+  The present datetime is ignored, only the time interval for the next element is taken into consideration.
+  In this mode, the first element of the stream is emitted when the stream is started. The next element is emitted after a delay given by
+  
+  ```
+  Delay = (t_1-t_0)/speed_factor
+  ```
+  - Infinite speed: The stream is consumed at once.  
+
+The speed parameter should be configured as 
+````json
+{"speed": "realtime"}
+````
+for the realtime mode,
+
+````json
+{"speed": "number"}
+````
+for the speed factor mode and 
+````json
+{"speed": "inf"}
+````
+for the infinite speed mode.
+
+## API Explorer
+
+This subproject exposes a Swagger UI is exposed at ???
+The UI documents and allows to test the Configuration and control API described in the previous section.
+
+### Getting Started
+???
+
+## Tsaas - Frontend
+
+To be done
+
+
+## Top level project
+???   
+
+---------
+## Goal
+
 In progress: this README.md need to be refactored! (draw + architecture definition)
 
 This project contains the high level documentation for the TSimulus SaaS project.

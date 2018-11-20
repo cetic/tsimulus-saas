@@ -1,0 +1,60 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: tsaas-backend
+spec:
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+  selector:
+    run: tsaas-backend 
+  clusterIP: None
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  labels:
+    run: tsaas-backend
+  name: tsaas-backend
+  annotations:
+    openshift.io/image.insecureRepository: "true"
+spec:
+  serviceName: tsaas-backend
+  podManagementPolicy: "Parallel"
+  replicas: 1
+  selector:
+    matchLabels:
+      run: tsaas-backend
+  template:
+    metadata:
+      labels:
+        run: tsaas-backend
+    spec:
+      containers:
+      - name: tsaas-backend
+        image: nexus.ext.cetic.be:8083/cetic/tsaas-backend
+        stdin: true
+        tty: true
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: BINDING
+          value: 0.0.0.0
+        resources:
+          requests:
+            memory: "500Mi"
+            cpu: "500m"
+          limits:
+            memory: "1000Mi"
+            cpu: "1000m"
+        livenessProbe:
+          tcpSocket:
+            port: 8080
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        status:
+          dockerImageRepository: nexus.ext.cetic.be:8083

@@ -1,0 +1,40 @@
+"""{
+"msg_dt": "${time?number_to_datetime?string["yyyy-MM-dd'T'HH:mm:ss.'000000Z'"]}}",
+"serial_number": "18600006",
+  "n_devices": 1,
+  "device_1": {
+    "metadata": {
+      "n": 1,
+      "name": "periodic_example",
+      "location": "Micromega Dynamics",
+      "latitude": 50.701874,
+      "longitude": 4.594015,
+      "n_channels": 1,
+      "type": 1,
+      "remote_processing": 1,
+      "tlm_type": 1
+    },
+    "channel_0": {
+      "n": 0,
+      "name": "example_0",
+      "units": "mA",
+      "local_processing": 0,
+      "sampling_f": 250,
+      "n_stats": 0,
+      "rms_data": "",
+      "avg_data": "",
+      "min_data": "",
+      "max_data": "",
+      "peak_peak_data": "",
+      "peak_data": "",
+      "skewness_data": "",
+      "kurtosis_data": "",
+      "std_data": "",
+      "n_events": 0,
+      "warning": "",
+      "alarm": "",
+      "n_raw_data": 250,
+      "raw_data": "${b64("little", noise(1,replicate(250, x)))}"
+    }
+  }
+}"""

@@ -1,0 +1,17 @@
+.classpath
+.project
+.settings/
+target/
+project/target
+.cache
+.cache-main
+.idea/
+*.iml
+*/bin/
+
+.vagrant
+provisioning/roles/geerlingguy.*
+provisioning/roles/mpathira.*
+provisioning/ansible/*
+
+.DS_Store

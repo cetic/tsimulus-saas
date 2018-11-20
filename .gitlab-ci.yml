@@ -42,7 +42,7 @@ deployDev:
   # remove old pods
   - "oc get services $APP 2> /dev/null && oc delete -f k8s/tsaas-backend-statefulset.yml"
   - "oc get services $APP_SWAGGER 2> /dev/null && oc delete -f k8s/tsaas-swagger-ui-deployment.yml"
-  - "oc delete configmap swagger-config"
+  - "oc get configmap swagger-config 2> /dev/null && oc delete configmap swagger-config"
   ## Issue when trying to delete the statefulset https://github.com/kubernetes/kubernetes/issues/59867 Bug car pas même version de kubectl client - seveur
   # create swagger configMap
   - "oc create configmap swagger-config --from-file=oas/api-doc/"
@@ -76,7 +76,7 @@ deployProd:
   # remove old pods
   - "oc get services $APP 2> /dev/null && oc delete -f k8s/tsaas-backend-statefulset.yml"
   - "oc get services $APP_SWAGGER 2> /dev/null && oc delete -f k8s/tsaas-swagger-ui-deployment.yml"
-  - "oc delete configmap swagger-config"
+  - "oc get configmap swagger-config 2> /dev/null && oc delete configmap swagger-config"
   ## Issue when trying to delete the statefulset https://github.com/kubernetes/kubernetes/issues/59867 Bug car pas même version de kubectl client - seveur
   # create swagger configMap
   - "oc create configmap swagger-config --from-file=oas/api-doc/"

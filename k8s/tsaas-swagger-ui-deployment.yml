@@ -1,0 +1,54 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: tsaas-swagger-ui
+spec:
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+  selector:
+    run: tsaas-swagger-ui
+  clusterIP: None
+---
+kind: Deployment
+apiVersion: apps/v1beta1
+metadata:
+  labels:
+    run: tsaas-swagger-ui
+  name: tsaas-swagger-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: tsaas-swagger-ui
+  template:
+    metadata:
+      labels:
+        run: tsaas-swagger-ui
+    spec:
+      containers:
+      - name: swagger-ui
+        image: swaggerapi/swagger-ui
+        env:
+        - name: SWAGGER_JSON
+          value: /api-doc/openapi.json
+        volumeMounts:
+        - mountPath: /api-doc
+          name: swagger-config
+        livenessProbe:
+          tcpSocket:
+            port: 8080
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+      volumes:
+        - name: swagger-config
+          configMap:
+            name: swagger-config
+            #items:
+            #- key: /api-doc/openapi.json
+            #  path: /api-doc/openapi.json
+
+#kubectl create configmap swagger-config --from-file=api-doc/
+

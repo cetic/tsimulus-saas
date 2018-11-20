@@ -6,10 +6,13 @@ This repository is a rework of https://git.cetic.be/TSimulus/tsimulus-cluster
 
 ## Goal
 
-his project contains the high level documentation for the TSimulus SaaS project.
+This project contains the high level documentation for the TSimulus SaaS project.
 The aim of this work is to provide a self service that showcases TSimulus capabilities.
 
 The project aims at building a REST API in front of the [TSimulus](https://github.com/cetic/TSimulus) framework, and a set of configurable websocket routes to consume the Tsimulus stream.
+
+* The REST API is available on OpenShift at http://tsaas-api.openshift.ext.cetic.be/
+* Swagger Specs for the TSAAS API is available at http://tsaas-swagger-ui.openshift.ext.cetic.be
 
 The project is strucured as a sbt multiproject, each part are runnable as standalone and the top level project coordinates a complete deployment and coordination of each parts.
 In the following it is assumed that sbt is installed in your system.
@@ -23,9 +26,26 @@ It includes
  - exposing a configuration and control REST API,
  - exposing websocket routes fed by outputs of the generator
  - handling the timing of data injection into the websockets.
- - processing templates for custom rendering of the generated datae.
+ - processing templates for custom rendering of the generated data.
  
-### Getting started
+### 0. Getting started
+
+#### 0.1. Prerequisites
+
+Install sbt on your machine.
+
+OR
+
+Install [Vagrant](https://www.vagrantup.com/) and [Virtualbox](https://www.virtualbox.org/)
+
+### 0.2. Local development
+
+Clone this repository
+
+```
+git clone git@git.cetic.be:TSimulus/tsimulus-saas.git
+```
+
 In order to run the backend server, log into the project directory and run 
 ````sh
 sbt run
@@ -34,8 +54,61 @@ or from the root project, run
 ````sh
 sbt backend/run
 ````
- 
-### Creating a websocket route
+
+#### 0.2.1. Local development with [Vagrant](https://www.vagrantup.com/)
+
+Launch the VM and ssh into it: (Vagrant will install sbt and docker on the VM)
+
+```bash
+vagrant up
+vagrant ssh
+```
+
+Go into your shared `/vagrant` folder.
+
+Then, run each line in a new terminal. 
+
+````
+sbt backend/run
+````
+
+Go to [localhost:9000](http://localhost:9000) and enjoy the frontend.
+
+The `/vagrant` folder in the VM is shared with the folder where the `Vagrantfile` is on the host computer. 
+
+### 0.3. Local development development with Minikube
+
+#### 0.3.1. Install Minikube
+
+* Install VirtualBox: https://www.virtualbox.org/wiki/Downloads
+* Install Kubectl: https://kubernetes.io/docs/tasks/tools/install-kubectl/
+* Install Minikube: https://github.com/kubernetes/minikube/releases
+
+#### 0.3.2. Deploy the project
+
+
+To get the Kubernetes dashboard, type: `minikube dashboard` 
+
+Create the TSAAS backend:
+
+```
+kubectl create -f k8s/tsaas-backend-statefulset.yml
+```
+
+Create the ConfigMap containing the swagger specs:
+```
+kubectl create configmap swagger-config --from-file=oas/api-doc/
+```
+
+Create the Swagger UI:
+```
+kubectl create -f tsimulus-backend-statefulset.yml
+```
+
+TODO (nexus acces?)
+
+
+### 0.3. Creating a websocket route
 
 The websockets are exposed at the following URL:
 ```
@@ -56,7 +129,7 @@ The configuration routes provide a CRUD api to manage the stream configurations,
 the control API exposes a set of action to manage the stream consuption. 
 These APIs are documented in the next subproject, exposing a comoplete Open Api Specification and an API explorer.
 
-### Stream configuration
+### 0.4. Stream configuration
 
 A stream configuration consists in 
   - A Tsimulus configuration
@@ -74,10 +147,10 @@ The stream configuation is to be sent in a json object to the stream configurati
 }
 ```
   
-#### Tsimulus configuration
+### 0.5. Tsimulus configuration
 Please refer to the official [Tsimulus documentation](https://tsimulus.readthedocs.io/en/latest/) for proper formatting.    
 
-### Template
+#### 0.5.1. Template
 
 The template object includes has the schema:
 ````json
@@ -100,7 +173,7 @@ We additionally provide 3 custom functions in the template :
 The timeVariable, nameVariable and valueVariable variables represents respectively the names of the time, name and value variables in the template.   
 
 
-### Speed
+#### 0.5.2. Speed
 The speed parameter can be a string or a number.
 Each elements of a tsimulus stream comes with a timestamp and a value. 
 The stream can be consumed in three different ways: 
@@ -130,12 +203,12 @@ for the speed factor mode and
 ````
 for the infinite speed mode.
 
-## API Explorer
+### 0.6. API Explorer
 
-This subproject exposes a Swagger UI is exposed at ???
+This subproject exposes a Swagger UI is exposed at http://tsaas-swagger-ui.openshift.ext.cetic.be
 The UI documents and allows to test the Configuration and control API described in the previous section.
 
-### Getting Started
+#### 0.6.1 Getting Started
 ???
 
 ## Tsaas - Frontend
@@ -145,73 +218,6 @@ To be done
 
 ## Top level project
 ???   
-
----------
-## Goal
-
-In progress: this README.md need to be refactored! (draw + architecture definition)
-
-This project contains the high level documentation for the TSimulus SaaS project.
-The aim of this work is to provide a self service that showcases TSimulus capabilities.
-
-The project aims at building a REST API in front of the [TSimulus](https://github.com/cetic/TSimulus) framework.
-
-After, the project will aim at building a play frontend. The frontend will provide
-
-* A job-execute frontend to generate timeseries with the [TSimulus](https://github.com/cetic/TSimulus) framework.
-
-## 0. Getting Started
-
-Clone this repository
-
-```
-git clone git@git.cetic.be:TSimulus/tsimulus-cluster.git
-```
-
-### 0.1. Prerequisites
-
-Install [Vagrant](https://www.vagrantup.com/) and [Virtualbox](https://www.virtualbox.org/)
-
-### 0.2. Local development development
-
-Launch the VM and ssh into it: 
-
-```bash
-vagrant up
-vagrant ssh
-```
-
-Go into your shared `/vagrant` folder.
-
-To run the akka cluster on a single local instance, you need to update the variable seed-nodes in the two application.conf files (in `backend/src/main/resources/application.conf` and in `frontend/src/main/resources/application.conf`).
-
-Then, run each line in a new terminal. 
-
-```
-sbt "backend/run 2551"
-sbt "backend/run 2552"
-sbt "project frontend" run
-```
-
-Go to [localhost:9000](http://localhost:9000) and enjoy the frontend.
-
-The `/vagrant` folder in the VM is shared with the folder where the `Vagrantfile` is on the host computer. 
-
-### 0.3. Local development development with Minikube
-
-#### 0.3.1. Install Minikube
-
-* Install VirtualBox: https://www.virtualbox.org/wiki/Downloads
-* Install Kubectl: https://kubernetes.io/docs/tasks/tools/install-kubectl/
-* Install Minikube: https://github.com/kubernetes/minikube/releases
-
-#### 0.3.2. Deploy the project
-
-To get the Kubernetes dashboard, type: `minikube dashboard` 
-
-```
-kubectl create -f tsimulus-backend-statefulset.yml
-```
 
 ## 1. Functional specifications
 
@@ -284,38 +290,32 @@ If using git: simplified version of [Git Flow](http://nvie.com/posts/a-successfu
 * local dev environment: Vagrant+Virtualbox using the Ansible provisioning script
 * Gitlab CI orchestrates the workflow. See the "gitlab-ci" file: https://git.cetic.be/TSimulus/tsimulus-cluster/blob/develop/.gitlab-ci.yml
 
-#### Swagger
+#### 2.4.3. Swagger
 
-Automaticaly generate Swagger Specs for TSimulus Cluster API: https://github.com/iheartradio/play-be.cetic.tsaas.swagger
-The sbt-play-be.cetic.tsaas.swagger plugin generates the be.cetic.tsaas.swagger.json on `sbt run` or `sbt package`.
-Swagger UI is available at http://localhost:9000/docs/be.cetic.tsaas.swagger-ui/index.html?url=/assets/be.cetic.tsaas.swagger.json
-It uses the be.cetic.tsaas.swagger-ui webjar and our play app serves the be.cetic.tsaas.swagger ui.
-(libraryDependencies += "org.webjars" % "be.cetic.tsaas.swagger-ui" % "2.2.0")
+Using Swagger-UI docker image: https://hub.docker.com/r/swaggerapi/swagger-ui/
 
-#### Kafka
+The default openshift security policy blocks containers from performing setuid and setgid operations. (from issue: https://github.com/openshift/origin/issues/13443) 
+We need to grant that to our project:
  
-Apache Kafka Cluster: for the moment with Vagrant: https://github.com/eucuepo/vagrant-kafka OR with DC/OS: http://10.133.3.2
-Check the application.conf to set the Message Brokers endpoints: https://git.cetic.be/TSimulus/tsimulus-cluster/blob/develop/backend/src/main/resources/application.conf
+* https://docs.openshift.org/latest/admin_guide/manage_scc.html#enable-dockerhub-images-that-require-root
 
-#### 2.4.3. Testing
+#### 2.4.4. Testing
 
-TBD 
-
-* doc add insecure registry to openshift https://docs.okd.io/3.9/dev_guide/managing_images.html#insecure-registries
-* https://docs.openshift.com/container-platform/3.5/dev_guide/managing_images.html#allowing-pods-to-reference-images-from-other-secured-registries
-* http://v1.uncontained.io/playbooks/continuous_delivery/external-docker-registry-integration.html
-* allow publishing on Nexus
-* pulling images from OpenShift: https://docs.openshift.com/enterprise/3.0/dev_guide/image_pull_secrets.html
-* deploy akka cluster on kubernetes: https://medium.com/google-cloud/clustering-akka-in-kubernetes-with-statefulset-and-deployment-459c0e05f2ea
+TBD
 
 ? unit testing
 ? API testing
 ? load testing
 ? ...
 
-* local vagrant+virtualbox development environment
-* integration environment: 'develop' branch
+### 3. Fridge
+
+* doc add insecure registry to openshift https://docs.okd.io/3.9/dev_guide/managing_images.html#insecure-registries
+* https://docs.openshift.com/container-platform/3.5/dev_guide/managing_images.html#allowing-pods-to-reference-images-from-other-secured-registries
+* http://v1.uncontained.io/playbooks/continuous_delivery/external-docker-registry-integration.html
+* allow publishing on Nexus
+* pulling images from OpenShift: https://docs.openshift.com/enterprise/3.0/dev_guide/image_pull_secrets.html
 
 ## Licence
 
-TSimulus is release under the [Apache license](http://www.apache.org/licenses/) (version 2). 
+TSimulus is release under the [Apache license](http://www.apache.org/licenses/) (version 2).

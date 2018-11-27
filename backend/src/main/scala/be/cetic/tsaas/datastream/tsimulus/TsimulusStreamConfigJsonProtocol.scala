@@ -12,7 +12,7 @@ trait TsimulusStreamConfigJsonProtocol extends DefaultJsonProtocol with SprayJso
       s match {
         case SpeedFactor(factor) => JsObject(Map("speed" -> JsNumber(factor)))
         case InfiniteSpeed => JsObject(Map("speed" -> JsString("inf")))
-        case Realtime => JsObject(Map("speed"->JsString("realtime")))
+        case Realtime => JsObject(Map("speed" -> JsString("realtime")))
         case x => throw DeserializationException(s"Unknown speed factor $x")
       }
     }
@@ -21,10 +21,10 @@ trait TsimulusStreamConfigJsonProtocol extends DefaultJsonProtocol with SprayJso
       val jsMap = js.asJsObject.fields
       jsMap("speed") match {
         case JsNumber(value) => SpeedFactor(value.toFloat)
-        case JsString(s) if s.replace("_", "").toLowerCase == "inf"  => InfiniteSpeed
-        case JsString(s) if s.replace("_", "").toLowerCase == "infinite"  => InfiniteSpeed
-        case JsString(s) if s.replace("_", "").toLowerCase == "infinity"  => InfiniteSpeed
-        case JsString(s) if s.replace("_", "").toLowerCase == "realtime"  => Realtime
+        case JsString(s) if s.replace("_", "").toLowerCase == "inf" => InfiniteSpeed
+        case JsString(s) if s.replace("_", "").toLowerCase == "infinite" => InfiniteSpeed
+        case JsString(s) if s.replace("_", "").toLowerCase == "infinity" => InfiniteSpeed
+        case JsString(s) if s.replace("_", "").toLowerCase == "realtime" => Realtime
         case x => throw new DeserializationException(s"Unknown speed factor $x")
       }
     }
@@ -48,18 +48,18 @@ trait TsimulusStreamConfigJsonProtocol extends DefaultJsonProtocol with SprayJso
       val jsMap = json.asJsObject().fields
       val config = Configuration(jsMap("config"))
       val speed = if (jsMap.keys.toSeq.contains("speed")) json.convertTo[Speed] else SpeedFactor(1)
-      jsMap.get("template")
+      val singleConf = jsMap.get("template")
         .map { template =>
-          if (template.asJsObject.fields.keySet.diff(Set("template", "timeVariable", "nameVariable", "valueVariable")).isEmpty) {
-            val template = jsMap.get("template").map(_.convertTo[Template]).getOrElse(defaultTemplate)
-            TsimulusStreamConfig(config, speed, template)
-          }
-          else {
-            val template = jsMap("template").convertTo[Seq[TemplateMap]]
-            TsimulusStreamConfig(config, speed, template)
-          }
+          val tpl = template.convertTo[Template]
+          TsimulusStreamConfig(config, speed, tpl)
         }
-        .getOrElse(TsimulusStreamConfig(config, speed))
+
+      val multiConf = jsMap.get("templates").map { templates =>
+        val tpls = templates.convertTo[Seq[TemplateMap]]
+        TsimulusStreamConfig(config, speed, tpls)
+      }
+
+      singleConf.getOrElse(multiConf.getOrElse(TsimulusStreamConfig(config, speed)))
     }
   }
 

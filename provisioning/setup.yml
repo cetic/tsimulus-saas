@@ -4,3 +4,4 @@
   roles:
      - { role: mpathira.sbt }
      - { role: geerlingguy.java }
+     - { role: geerlingguy.docker }

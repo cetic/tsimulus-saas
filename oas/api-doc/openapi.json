@@ -13,6 +13,10 @@
     {
       "url": "http://tsaas-api.openshift.ext.cetic.be",
       "description": "dev-online"
+    },
+    {
+      "url": "http://tsaas-prod-api.openshift.ext.cetic.be",
+      "description": "prod-online"
     }
   ],
   "paths": {

@@ -24,7 +24,7 @@ object WebsocketActor {
 
   case object StatusRequest extends Operation
 
-  case class Status(running: Boolean, starting: Boolean, configured: Boolean, nextDelay: Option[Int])
+  case class Status(running: Boolean, starting: Boolean, configured: Boolean, nextDelay: Option[Long])
 
   trait StreamingConfirmation
 
@@ -77,7 +77,7 @@ class WebsocketActor[T](wsSourceActor: ActorRef) extends Actor with ActorLogging
 
     case Stop => iteratorSchedule.cancel()
 
-    case StatusRequest => sender ! Status(!iteratorSchedule.isCancelled, starting ,streamConfig.nonEmpty, maybeNextDelay.map(_.length.toInt))
+    case StatusRequest => sender ! Status(!iteratorSchedule.isCancelled, starting ,streamConfig.nonEmpty, maybeNextDelay.map(_.toMillis.asInstanceOf[Long]))
 
     case WsDropped => log.info(s"Websocket connection closed.")
 

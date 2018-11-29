@@ -24,6 +24,7 @@ trait WebsocketActorJsonProtocol extends DefaultJsonProtocol with SprayJsonSuppo
       JsObject(Map("action" -> JsString(value)))
     }
 
+
     override def read(json: JsValue): WebsocketActor.Operation = {
       json.asJsObject.fields("action").asInstanceOf[JsString].value match {
         case "stop" => Stop

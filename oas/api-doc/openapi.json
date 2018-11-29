@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:8080",
+      "url": "http://tsaas-prod-api.openshift.ext.cetic.be",
       "description": "prod-online"
     },
     {

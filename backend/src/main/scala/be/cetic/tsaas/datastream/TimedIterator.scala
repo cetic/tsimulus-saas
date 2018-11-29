@@ -25,7 +25,7 @@ object TimedIterator {
 
 trait TimedIterator[T] {
   val config: StreamConfig
-  val iterator: Iterator[(Long, T)]
+  var iterator: Iterator[(Long, T)]
   val dropBeforeNow = false
 
   private var initialized = false
@@ -47,6 +47,8 @@ trait TimedIterator[T] {
   }
 
   def filterBefore(before: Long): Unit = {
+    iterator=iterator.filter(_._1 > before -1000)
+    nextElement = prepareNextElement()
     var delay : Long = nextElement.map(_._1 - before).getOrElse(0)
 
     while (delay < 0) {

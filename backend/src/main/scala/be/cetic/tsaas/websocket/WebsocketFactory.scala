@@ -3,21 +3,22 @@ package be.cetic.tsaas.websocket
 import java.util.UUID
 
 import akka.NotUsed
-import akka.pattern.ask
 import akka.actor.{ActorRef, ActorSystem}
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.ws.{Message, TextMessage}
-import akka.stream.{Materializer, OverflowStrategy}
+import akka.pattern.ask
 import akka.stream.scaladsl.{BroadcastHub, Flow, Keep, Sink, Source}
+import akka.stream.{Materializer, OverflowStrategy}
 import akka.util.Timeout
 import be.cetic.tsaas.datastream.TimedIterator
 import be.cetic.tsaas.datastream.TimedIterator.StreamConfig
-import be.cetic.tsaas.websocket.WebsocketActor.{EmptyStreamConfiguration, StreamingConfirmation, StreamingNotStarted, StreamingStarted}
+import be.cetic.tsaas.websocket.WebsocketActor.{EmptyStreamConfiguration, StreamingNotStarted, StreamingStarting}
 import be.cetic.tsaas.websocket.WebsocketFactory.{WebsocketConfig, WsHandler}
+import spray.json._
+import akka.pattern.AskTimeoutException
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContextExecutor, Future}
-import spray.json._
 
 object WebsocketFactory {
 
@@ -33,7 +34,7 @@ object WebsocketFactory {
 
 }
 
-class WebsocketFactory(implicit val system: ActorSystem, implicit val materializer: Materializer) extends WebsocketActorJsonProtocol{
+class WebsocketFactory(implicit val system: ActorSystem, implicit val materializer: Materializer) extends WebsocketActorJsonProtocol {
   implicit val dispatcher: ExecutionContextExecutor = system.dispatcher
   implicit val timeout: Timeout = Timeout(20 seconds)
   private var configCache: Map[UUID, TimedIterator.StreamConfig] = Map()
@@ -70,15 +71,25 @@ class WebsocketFactory(implicit val system: ActorSystem, implicit val materializ
 
   def startStream(wsId: UUID, once: Boolean = false): Future[HttpResponse] = {
     val msg = if (once) WebsocketActor.Validate else WebsocketActor.Start
-    (getOrCreateWebsocketHandler(wsId).websocketActor ? msg).mapTo[StreamingConfirmation]
+
+    val response = getOrCreateWebsocketHandler(wsId).websocketActor.ask(msg)(Timeout(3.seconds))
       .map {
-        case StreamingStarted => HttpResponse(StatusCodes.Accepted,
-          entity = s"""{"msg":Streaming ${if (once) "valid" else "started"}}"""")
+        case StreamingStarting => HttpResponse(StatusCodes.Accepted,
+          entity = s"""{"msg":"Streaming ${if (once) "valid" else "starting"}"}"""")
         case StreamingNotStarted(t) => HttpResponse(StatusCodes.InternalServerError,
-          entity = s"""{"msg":"Streaming could not start because of ${t.getMessage}}"""")
+          entity = s"""{"msg":"Streaming could not start because of ${t.getMessage}"}"""")
         case EmptyStreamConfiguration => HttpResponse(StatusCodes.RetryWith,
           entity = """{"msg":"Missing stream configuration. Retry after posting a configuration"}""")
+        case m =>
+          HttpResponse(StatusCodes.Accepted, entity = s"""{"msg":"$m"}""")
       }
+
+    response.andThen {
+      case scala.util.Success(value) => value
+      case scala.util.Failure(t: AskTimeoutException) =>
+        HttpResponse(StatusCodes.Accepted, entity = s"""{"msg":"Stream starting"}""")
+      case _ => HttpResponse(StatusCodes.Accepted, entity = s"""{"msg":"Stream start failed for unknown reason"}""")
+    }
   }
 
   def stopStream(wsId: UUID): HttpResponse = {
@@ -87,13 +98,13 @@ class WebsocketFactory(implicit val system: ActorSystem, implicit val materializ
         getOrCreateWebsocketHandler(wsId).websocketActor ! WebsocketActor.Stop
         HttpResponse(StatusCodes.OK, entity = """{"msg":"Stream stopped"}""")
     }.getOrElse {
-      HttpResponse(StatusCodes.RetryWith, entity = """{"msg":"Stream not configured.}"""")
+      HttpResponse(StatusCodes.RetryWith, entity = """{"msg":"Stream not configured."}"""")
     }
   }
 
   def streamStatus(wsId: UUID): Future[HttpResponse] = {
     (getOrCreateWebsocketHandler(wsId).websocketActor ? WebsocketActor.StatusRequest).mapTo[WebsocketActor.Status]
-    .map(status => HttpResponse(StatusCodes.OK, entity = status.toJson.toString))
+      .map(status => HttpResponse(StatusCodes.OK, entity = status.toJson.toString))
   }
 
   def getOrCreateWebsocketHandler(wsId: UUID): WsHandler = {
@@ -108,7 +119,7 @@ class WebsocketFactory(implicit val system: ActorSystem, implicit val materializ
 
     val (streamEntry: ActorRef, messageSource: Source[Message, NotUsed]) = source.toMat(BroadcastHub.sink(1024))(Keep.both).run
 
-    val websocketActor: ActorRef = system.actorOf(WebsocketActor.props(streamEntry))
+    val websocketActor: ActorRef = system.actorOf(WebsocketActor.props(streamEntry), s"websocketActor-$wsId")
     val sink: Sink[Message, NotUsed] = Flow[Message].to(Sink.actorRef(websocketActor, WebsocketActor.WsDropped))
 
     val flow = Flow.fromSinkAndSource(sink, messageSource)

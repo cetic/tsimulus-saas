@@ -13,10 +13,6 @@
     {
       "url": "http://tsaas-api.openshift.ext.cetic.be",
       "description": "dev-online"
-    },
-    {
-      "url": "http://tsaas-prod-api.openshift.ext.cetic.be",
-      "description": "prod-online"
     }
   ],
   "paths": {
@@ -253,6 +249,9 @@
           "running": {
             "type": "boolean"
           },
+          "starting": {
+            "type": "boolean"
+          },
           "configured": {
             "type": "boolean"
           }
@@ -338,16 +337,16 @@
               {
                 "name": "tlm_1",
                 "generator": "noisy-daily",
-                "frequency": 3600000
+                "frequency": 30000
               },
               {
                 "name": "tlm_2",
                 "generator": "daily-generator2",
-                "frequency": 3600000
+                "frequency": 15000
               }
             ],
             "from": "2018-10-01 00:00:00.000",
-            "to": "2018-12-01 00:00:00.000"
+            "to": "2018-12-06 00:00:00.000"
           },
           "templates": [
             {
@@ -362,14 +361,14 @@
             {
               "seriesName": "tlm_2",
               "template": {
-                "template": "{\n\"msg_dt\": \"${t?number_to_datetime?string[\"yyyy-MM-dd'T'HH:mm:ss.'000000Z'\"]}\",\n\"serial_number\": \"18600006\",\n  \"n_devices\": 1,\n  \"device_1\": {\n    \"metadata\": {\n      \"n\": 1,\n      \"name\": \"periodic_example\",\n      \"location\": \"Micromega Dynamics\",\n      \"latitude\": 50.701874,\n      \"longitude\": 4.594015,\n      \"n_channels\": 1,\n      \"type\": 1,\n      \"remote_processing\": 1,\n      \"tlm_type\": 5\n    },\n    \"channel_0\": {\n      \"n\": 0,\n      \"name\": \"example_0\",\n      \"units\": \"mA\",\n      \"local_processing\": 0,\n      \"sampling_f\": 250,\n      \"n_stats\": 0,\n      \"rms_data\": \"\",\n      \"avg_data\": \"\",\n      \"min_data\": \"\",\n      \"max_data\": \"\",\n      \"peak_peak_data\": \"\",\n      \"peak_data\": \"\",\n      \"skewness_data\": \"\",\n      \"kurtosis_data\": \"\",\n      \"std_data\": \"\",\n      \"n_events\": 0,\n      \"warning\": \"\",\n      \"alarm\": \"\",\n      \"n_raw_data\": 250,\n      \"raw_data\": \"${b64(\"little\", noise(1,replicate(250, x)))}\"\n    }\n  }\n}",
+                "template": "{\n\"msg_dt\": \"${t?number_to_datetime?string[\"yyyy-MM-dd'T'HH:mm:ss.'000000Z'\"]}\",\n\"serial_number\": \"18600005\",\n  \"n_devices\": 1,\n  \"device_1\": {\n    \"metadata\": {\n      \"n\": 1,\n      \"name\": \"periodic_example\",\n      \"location\": \"Micromega Dynamics\",\n      \"latitude\": 51.701874,\n      \"longitude\": 3.594015,\n      \"n_channels\": 1,\n      \"type\": 1,\n      \"remote_processing\": 1,\n      \"tlm_type\": 5\n    },\n    \"channel_0\": {\n      \"n\": 0,\n      \"name\": \"example_0\",\n      \"units\": \"mA\",\n      \"local_processing\": 0,\n      \"sampling_f\": 250,\n      \"n_stats\": 0,\n      \"rms_data\": \"\",\n      \"avg_data\": \"\",\n      \"min_data\": \"\",\n      \"max_data\": \"\",\n      \"peak_peak_data\": \"\",\n      \"peak_data\": \"\",\n      \"skewness_data\": \"\",\n      \"kurtosis_data\": \"\",\n      \"std_data\": \"\",\n      \"n_events\": 0,\n      \"warning\": \"\",\n      \"alarm\": \"\",\n      \"n_raw_data\": 250,\n      \"raw_data\": \"${b64(\"little\", noise(1,replicate(250, x)))}\"\n    }\n  }\n}",
                 "timeVariable": "t",
                 "nameVariable": "name",
                 "valueVariable": "x"
               }
             }
           ],
-          "speed": 3600,
+          "speed": "realtime",
           "type": "tsimulus"
         }
       },

@@ -5,7 +5,7 @@ import akka.http.scaladsl.model.ws.TextMessage
 import be.cetic.tsaas.datastream.TimedIterator
 import be.cetic.tsaas.websocket.WebsocketActor._
 
-import scala.concurrent.ExecutionContextExecutor
+import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.concurrent.duration.FiniteDuration
 
 object WebsocketActor {
@@ -24,13 +24,13 @@ object WebsocketActor {
 
   case object StatusRequest extends Operation
 
-  case class Status(running: Boolean, configured: Boolean, nextDelay: Option[Int])
+  case class Status(running: Boolean, starting: Boolean, configured: Boolean, nextDelay: Option[Int])
 
   trait StreamingConfirmation
 
   case object EmptyStreamConfiguration extends StreamingConfirmation
 
-  case object StreamingStarted extends StreamingConfirmation
+  case object StreamingStarting extends StreamingConfirmation
 
   case class StreamingNotStarted(t: Throwable) extends StreamingConfirmation
 
@@ -49,7 +49,7 @@ class WebsocketActor[T](wsSourceActor: ActorRef) extends Actor with ActorLogging
 
   private var maybeNextDelay: Option[FiniteDuration] = None
 
-
+  private var starting = false
 
   override def postStop(): Unit = {
     log.info("Websocket Actor stopping")
@@ -59,9 +59,10 @@ class WebsocketActor[T](wsSourceActor: ActorRef) extends Actor with ActorLogging
     try {
       receiv
     }
-    catch{case t: Throwable =>
-      log.error(t.getMessage)
-      throw t
+    catch {
+      case t: Throwable =>
+        log.error(t.getMessage)
+        throw t
     }
   }
 
@@ -70,13 +71,13 @@ class WebsocketActor[T](wsSourceActor: ActorRef) extends Actor with ActorLogging
   def onReceive: Actor.Receive = {
     case Configure(config) => streamConfig = Some(config)
 
-    case Validate =>sender ! consumeAndConfirm(sender, once=true)
+    case Validate => consumeAndConfirm(sender, once = true)
 
-    case Start => sender ! consumeAndConfirm(sender)
+    case Start => consumeAndConfirm(sender)
 
     case Stop => iteratorSchedule.cancel()
 
-    case StatusRequest => sender ! Status(!iteratorSchedule.isCancelled, streamConfig.nonEmpty, maybeNextDelay.map(_.length.toInt))
+    case StatusRequest => sender ! Status(!iteratorSchedule.isCancelled, starting ,streamConfig.nonEmpty, maybeNextDelay.map(_.length.toInt))
 
     case WsDropped => log.info(s"Websocket connection closed.")
 
@@ -99,20 +100,23 @@ class WebsocketActor[T](wsSourceActor: ActorRef) extends Actor with ActorLogging
     case msg => log.info(s"Received unhandled message $msg")
   }
 
-  def consumeAndConfirm(confirmTo: ActorRef, once: Boolean=false): Unit = {
+  def consumeAndConfirm(confirmTo: ActorRef, once: Boolean = false): Unit = {
     if (streamConfig.isEmpty) {
       confirmTo ! EmptyStreamConfiguration
       return
     }
     confirmTo ! {
       try {
-        consume(once)
-        StreamingStarted
+        consume(true)
+        if (!once) {
+          Future(consume(once))
+        }
+        StreamingStarting
       }
       catch {
         case t: Throwable =>
           StreamingNotStarted(t)
-          //TODO : Create Template specific exception.
+        //TODO : Create Template specific exception.
       }
     }
   }
@@ -122,16 +126,20 @@ class WebsocketActor[T](wsSourceActor: ActorRef) extends Actor with ActorLogging
     iteratorSchedule.cancel()
   }
 
-  def consume(once: Boolean= false): Boolean = {
+  def consume(once: Boolean = false): Boolean = {
     streamConfig.exists { config =>
       val iterator = TimedIterator.factory[String](config)
       emptyIterator = false
-      if (!once) runAndSchedule(iterator)
+      if (!once) {
+        starting=true
+        runAndSchedule(iterator)
+      }
       true
     }
   }
 
   def runAndSchedule(timedIterator: TimedIterator[String]): Unit = {
+
     iteratorSchedule.cancel()
     val nextRound = timedIterator.next()
       .exists { case (delay, data) =>
@@ -139,6 +147,7 @@ class WebsocketActor[T](wsSourceActor: ActorRef) extends Actor with ActorLogging
         wsSourceActor ! data
         val nextRun: Runnable = () => runAndSchedule(timedIterator)
         iteratorSchedule = context.system.scheduler.scheduleOnce(delay, nextRun)
+        starting=false
         true
       }
     emptyIterator = !nextRound

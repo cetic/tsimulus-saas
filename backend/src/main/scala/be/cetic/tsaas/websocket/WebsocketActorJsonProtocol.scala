@@ -8,7 +8,7 @@ import be.cetic.tsaas.websocket.WebsocketFactory.WebsocketConfig
 import spray.json.{DefaultJsonProtocol, DeserializationException, JsObject, JsString, JsValue, RootJsonFormat}
 
 trait WebsocketActorJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport with UUIDJsonProtocol with TimedIteratorConfigJsonProtocol {
-  implicit val statusJsonFormat: RootJsonFormat[WebsocketActor.Status] = jsonFormat3(WebsocketActor.Status)
+  implicit val statusJsonFormat: RootJsonFormat[WebsocketActor.Status] = jsonFormat4(WebsocketActor.Status)
 
   implicit val websocketConfigJsonFormat: RootJsonFormat[WebsocketConfig] = jsonFormat2(WebsocketConfig)
 

@@ -8,9 +8,14 @@
   "servers": [
     {
       "url": "http://localhost:8080",
+      "description": "prod-online"
+    },
+    {
+      "url": "http://localhost:8080",
       "description": "local"
     },
     {
+
       "url": "http://tsaas-api.openshift.ext.cetic.be",
       "description": "dev-online"
     }

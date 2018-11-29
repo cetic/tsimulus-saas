@@ -6,10 +6,12 @@ info:
     The websocket is located at the path  /socket
   version: 1.0.0
 servers:
-  - url: 'http://localhost:8080'
-    description: local
+  - url: 'http://tsaas-prod-api.openshift.ext.cetic.be'
+    description: prod-online
   - url: 'http://tsaas-api.openshift.ext.cetic.be'
     description: dev-online
+  - url: 'http://localhost:8080'
+      description: local
 paths:
   /stream:
     get:

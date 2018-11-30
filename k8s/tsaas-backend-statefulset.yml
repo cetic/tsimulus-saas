@@ -9,7 +9,7 @@ spec:
     targetPort: 8080
   selector:
     run: tsaas-backend 
-  clusterIP: None
+  type: NodePort
 ---
 apiVersion: apps/v1beta1
 kind: StatefulSet
@@ -56,5 +56,5 @@ spec:
         ports:
         - containerPort: 8080
           protocol: TCP
-        status:
-          dockerImageRepository: nexus.ext.cetic.be:8083
+      imagePullSecrets:
+      - name: docker-creds

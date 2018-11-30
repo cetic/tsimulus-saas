@@ -84,29 +84,58 @@ The `/vagrant` folder in the VM is shared with the folder where the `Vagrantfile
 * Install Kubectl: https://kubernetes.io/docs/tasks/tools/install-kubectl/
 * Install Minikube: https://github.com/kubernetes/minikube/releases
 
-#### 0.3.2. Deploy the project
+**You need to be in the CETIC network to access the Nexus Repository! (Use your VPN, ...)**
 
+#### 0.3.2. Local development
+
+Start Minikube:
+
+```
+ minikube start --cpus 4 --memory 8192 --insecure-registry="nexus.ext.cetic.be:8083"
+```
 
 To get the Kubernetes dashboard, type: `minikube dashboard` 
 
-Create the TSAAS backend:
+**Add a secret, so you can pull Docker images from Nexus: for the password (See Secret Variables in Gitlab: Settings > CI/CD > Variables > Nexus Password)**
 
 ```
-kubectl create -f k8s/tsaas-backend-statefulset.yml
+kubectl create secret docker-registry docker-creds --docker-server=nexus.ext.cetic.be:8083 --docker-username=nexus-gitlab-ci --docker-password=$SECRETVARCICD --docker-email=alexandre.nuttinck@cetic.be
 ```
 
-Create the ConfigMap containing the swagger specs:
+Launch the script:
+
 ```
-kubectl create configmap swagger-config --from-file=oas/api-doc/
+cd k8s
+./deploy-tsaas.sh
 ```
 
-Create the Swagger UI:
+Access the tsaas backend in your browser, type:
+
 ```
-kubectl create -f tsimulus-backend-statefulset.yml
+minikube service tsaas-backend
 ```
 
-TODO (nexus acces?)
+Retrieve the url, and update the server URL of minishift of the JSON file: /oas/api-doc/openapi.json. (Should be automated in the future).
 
+Then launch the swagger UI:
+
+```
+cd k8s
+./deploy-tsaas-swagger-ui.sh
+```
+
+Access the swagger service and choose the minikube server on the swagger UI:
+
+```
+minikube service tsaas-swagger-ui
+```
+
+To delete the tsimulus stack, type:   
+
+```
+cd k8s
+./clean-all.sh
+```                                                                     
 
 ### 0.3. Creating a websocket route
 

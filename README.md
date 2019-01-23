@@ -76,7 +76,7 @@ Go to [localhost:9000](http://localhost:9000) and enjoy the frontend.
 
 The `/vagrant` folder in the VM is shared with the folder where the `Vagrantfile` is on the host computer. 
 
-### 0.3. Local development development with Minikube
+### 0.3. Local development environment with Minikube
 
 #### 0.3.1. Install Minikube
 
@@ -135,9 +135,46 @@ To delete the tsimulus stack, type:
 ```
 cd k8s
 ./clean-all.sh
-```                                                                     
+```         
 
-### 0.3. Creating a websocket route
+### 0.4. development/prod environment with OpenShift    
+
+TODO
+
+For Nexus:
+
+**Add a secret, so OpenShift can pull Docker images from Nexus: for the password (See Secret Variables in Gitlab: Settings > CI/CD > Variables > Nexus Password)**
+
+```
+oc create secret docker-registry docker-creds --docker-server=nexus.ext.cetic.be:8083 --docker-username=nexus-gitlab-ci --docker-password=$SECRETVARCICD --docker-email=alexandre.nuttinck@cetic.be
+```
+
+For Swagger Docker Image:
+
+The default openshift security policy blocks containers from performing setuid and setgid operations. (from issue: https://github.com/openshift/origin/issues/13443) 
+We need to grant that to our project:
+ 
+* https://docs.openshift.org/latest/admin_guide/manage_scc.html#enable-dockerhub-images-that-require-root
+
+```
+oc adm policy add-scc-to-user anyuid system:serviceaccount:tsaas-dev:default
+```
+
+Endpoints:
+
+#### 0.4.1. Production environment
+
+PROD: (master branch)
+* [TSAAS Prod backend](http://tsaas-prod-api.openshift.ext.cetic.be)
+* [TSAAS Prod Swagger](http://tsaas-prod-swagger-ui.openshift.ext.cetic.be)
+
+#### 0.4.2. Development environment
+
+DEV: (develop branch)
+* [TSAAS Dev backend](http://tsaas-dev-api.openshift.ext.cetic.be)
+* [TSAAS Dev Swagger](http://tsaas-dev-swagger-ui.openshift.ext.cetic.be)
+
+### 0.5. Creating a websocket route
 
 The websockets are exposed at the following URL:
 ```

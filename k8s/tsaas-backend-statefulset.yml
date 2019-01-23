@@ -45,16 +45,17 @@ spec:
           value: 0.0.0.0
         resources:
           requests:
-            memory: "500Mi"
-            cpu: "500m"
+            memory: "250Mi"
+            cpu: "250m"
           limits:
             memory: "1000Mi"
-            cpu: "1000m"
+            cpu: "500m"
         livenessProbe:
           tcpSocket:
             port: 8080
         ports:
         - containerPort: 8080
           protocol: TCP
+      # Needed to pull images on the Nexus Repository
       imagePullSecrets:
       - name: docker-creds

@@ -1,11 +1,9 @@
+import be.cetic.tsaas.websocket.WebsocketActor
+import spray.json.DefaultJsonProtocol._
+import spray.json.{RootJsonFormat, _}
 
-def f(x: Int): Int = ???
+implicit val statusJsonFormat: RootJsonFormat[WebsocketActor.Status] = jsonFormat4(WebsocketActor.Status)
 
-def g(x: Float): Int = ???
+WebsocketActor.Status(true, true, true, None).toJson
 
-def w[T](fun: T => Int): String = {
-  classOf[T] match
-  {
-    case Int.getClass =>
-  }
-}
+Stream(1,2,3,4).filter(_ >3)

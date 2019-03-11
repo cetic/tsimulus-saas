@@ -11,8 +11,8 @@ The aim of this work is to provide a self service that showcases TSimulus capabi
 
 The project aims at building a REST API in front of the [TSimulus](https://github.com/cetic/TSimulus) framework, and a set of configurable websocket routes to consume the Tsimulus stream.
 
-* The REST API is available on OpenShift at http://tsaas-api.openshift.ext.cetic.be/
-* Swagger Specs for the TSAAS API is available at http://tsaas-swagger-ui.openshift.ext.cetic.be
+* The REST API is available on OpenShift at http://tsaas-prod-api.openshift.ext.cetic.be/
+* Swagger Specs for the TSAAS API is available at http://tsaas-prod-swagger-ui.openshift.ext.cetic.be or at https://tsaas.cetic.be
 
 The project is strucured as a sbt multiproject, each part are runnable as standalone and the top level project coordinates a complete deployment and coordination of each parts.
 In the following it is assumed that sbt is installed in your system.
@@ -76,7 +76,7 @@ Go to [localhost:9000](http://localhost:9000) and enjoy the frontend.
 
 The `/vagrant` folder in the VM is shared with the folder where the `Vagrantfile` is on the host computer. 
 
-### 0.3. Local development development with Minikube
+### 0.3. Local development environment with Minikube
 
 #### 0.3.1. Install Minikube
 
@@ -84,31 +84,97 @@ The `/vagrant` folder in the VM is shared with the folder where the `Vagrantfile
 * Install Kubectl: https://kubernetes.io/docs/tasks/tools/install-kubectl/
 * Install Minikube: https://github.com/kubernetes/minikube/releases
 
-#### 0.3.2. Deploy the project
+**You need to be in the CETIC network to access the Nexus Repository! (Use your VPN, ...)**
 
+#### 0.3.2. Local development
+
+Start Minikube:
+
+```
+ minikube start --cpus 4 --memory 8192 --insecure-registry="nexus.ext.cetic.be:8083"
+```
 
 To get the Kubernetes dashboard, type: `minikube dashboard` 
 
-Create the TSAAS backend:
+**Add a secret, so you can pull Docker images from Nexus: for the password (See Secret Variables in Gitlab: Settings > CI/CD > Variables > Nexus Password)**
 
 ```
-kubectl create -f k8s/tsaas-backend-statefulset.yml
+kubectl create secret docker-registry docker-creds --docker-server=nexus.ext.cetic.be:8083 --docker-username=nexus-gitlab-ci --docker-password=$SECRETVARCICD --docker-email=alexandre.nuttinck@cetic.be
 ```
 
-Create the ConfigMap containing the swagger specs:
-```
-kubectl create configmap swagger-config --from-file=oas/api-doc/
-```
+Launch the script:
 
-Create the Swagger UI:
 ```
-kubectl create -f tsimulus-backend-statefulset.yml
+cd k8s
+./deploy-tsaas.sh
 ```
 
-TODO (nexus acces?)
+Access the tsaas backend in your browser, type:
 
+```
+minikube service tsaas-backend
+```
 
-### 0.3. Creating a websocket route
+Retrieve the url, and update the server URL of minishift of the JSON file: /oas/api-doc/openapi.json. (Should be automated in the future).
+
+Then launch the swagger UI:
+
+```
+cd k8s
+./deploy-tsaas-swagger-ui.sh
+```
+
+Access the swagger service and choose the minikube server on the swagger UI:
+
+```
+minikube service tsaas-swagger-ui
+```
+
+To delete the tsimulus stack, type:   
+
+```
+cd k8s
+./clean-all.sh
+```         
+
+### 0.4. development/prod environment with OpenShift    
+
+TODO
+
+For Nexus:
+
+**Add a secret, so OpenShift can pull Docker images from Nexus: for the password (See Secret Variables in Gitlab: Settings > CI/CD > Variables > Nexus Password)**
+
+```
+oc create secret docker-registry docker-creds --docker-server=nexus.ext.cetic.be:8083 --docker-username=nexus-gitlab-ci --docker-password=$SECRETVARCICD --docker-email=alexandre.nuttinck@cetic.be
+```
+
+For Swagger Docker Image:
+
+The default openshift security policy blocks containers from performing setuid and setgid operations. (from issue: https://github.com/openshift/origin/issues/13443) 
+We need to grant that to our project:
+ 
+* https://docs.openshift.org/latest/admin_guide/manage_scc.html#enable-dockerhub-images-that-require-root
+
+```
+oc adm policy add-scc-to-user anyuid system:serviceaccount:tsaas-dev:default
+```
+
+Endpoints:
+
+#### 0.4.1. Production environment
+
+PROD: (master branch)
+* [TSAAS Prod backend](http://tsaas-prod-api.openshift.ext.cetic.be)
+* [TSAAS Prod Swagger](http://tsaas-prod-swagger-ui.openshift.ext.cetic.be)
+
+#### 0.4.2. Development environment
+
+DEV: (develop branch)
+* [TSAAS Dev backend](http://tsaas-dev-api.openshift.ext.cetic.be)
+* [TSAAS Dev Swagger](http://tsaas-dev-swagger-ui.openshift.ext.cetic.be)
+
+### 0.5. Creating a websocket route
 
 The websockets are exposed at the following URL:
 ```

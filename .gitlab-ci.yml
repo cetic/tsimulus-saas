@@ -31,62 +31,49 @@ publish:
   tags:
   - shared
 
+.deploy: &deploy
+  image: ebits/openshift-client
+  script:
+  - echo deploy to OpenShift
+  # remove old pods
+  - "oc get services $APP 2> /dev/null && oc delete -f k8s/tsaas-backend-statefulset.yml"
+  - "oc get services $APP_SWAGGER 2> /dev/null && oc delete -f k8s/tsaas-swagger-ui-deployment.yml"
+  - "oc get configmap swagger-config 2> /dev/null && oc delete configmap swagger-config"
+  ## Issue when trying to delete the statefulset https://github.com/kubernetes/kubernetes/issues/59867 Bug car pas même version de kubectl client - seveur
+  # create swagger configMap
+  - "oc create configmap swagger-config --from-file=oas/api-doc/"
+  # create new pods
+  - "oc create -f k8s/tsaas-backend-statefulset.yml"
+  - "oc get routes $APP 2> /dev/null || oc expose service $APP --hostname=$APP_HOST"
+  - "oc create -f k8s/tsaas-swagger-ui-deployment.yml"
+  - "oc get routes $APP_SWAGGER 2> /dev/null || oc expose service $APP_SWAGGER --hostname=$APP_SWAGGER_HOST"
+  tags:
+  - docker
+
 deployDev:
   stage: deployDev
-  image: ebits/openshift-client:v3.6.0
   before_script:
   - oc login "$OPENSHIFT_SERVER" --token="$OPENSHIFT_DEV_TOKEN" --insecure-skip-tls-verify
   - oc project $PROJECT
-  script:
-  - echo deploy to OpenShift
-  # remove old pods
-  - "oc get services $APP 2> /dev/null && oc delete -f k8s/tsaas-backend-statefulset.yml"
-  - "oc get services $APP_SWAGGER 2> /dev/null && oc delete -f k8s/tsaas-swagger-ui-deployment.yml"
-  - "oc get configmap swagger-config 2> /dev/null && oc delete configmap swagger-config"
-  ## Issue when trying to delete the statefulset https://github.com/kubernetes/kubernetes/issues/59867 Bug car pas même version de kubectl client - seveur
-  # create swagger configMap
-  - "oc create configmap swagger-config --from-file=oas/api-doc/"
-  # create new pods
-  - "oc create -f k8s/tsaas-backend-statefulset.yml"
-  - "oc get routes $APP 2> /dev/null || oc expose service $APP --hostname=$APP_HOST"
-  - "oc create -f k8s/tsaas-swagger-ui-deployment.yml"
-  - "oc get routes $APP_SWAGGER 2> /dev/null || oc expose service $APP_SWAGGER --hostname=$APP_SWAGGER_HOST"
-  tags:
-  - docker
+  <<: *deploy
   variables:
-    PROJECT: tsaas
+    PROJECT: tsaas-dev
     APP: tsaas-backend
     APP_SWAGGER: tsaas-swagger-ui
-    APP_HOST: tsaas-api.$OPENSHIFT_DOMAIN
-    APP_SWAGGER_HOST: tsaas-swagger-ui.$OPENSHIFT_DOMAIN
+    APP_HOST: tsaas-dev-api.$OPENSHIFT_DOMAIN
+    APP_SWAGGER_HOST: tsaas-dev-swagger-ui.$OPENSHIFT_DOMAIN
   environment:
     name: develop
-    url: http://tsaas-api.$OPENSHIFT_DOMAIN
-  except:
-  - master
+    url: http://tsaas-dev-api.$OPENSHIFT_DOMAIN
+  only:
+  - develop
 
 deployProd:
   stage: deployProd
-  image: ebits/openshift-client:v3.6.0
   before_script:
   - oc login "$OPENSHIFT_SERVER" --token="$OPENSHIFT_PROD_TOKEN" --insecure-skip-tls-verify
   - oc project $PROJECT
-  script:
-  - echo deploy to OpenShift
-  # remove old pods
-  - "oc get services $APP 2> /dev/null && oc delete -f k8s/tsaas-backend-statefulset.yml"
-  - "oc get services $APP_SWAGGER 2> /dev/null && oc delete -f k8s/tsaas-swagger-ui-deployment.yml"
-  - "oc get configmap swagger-config 2> /dev/null && oc delete configmap swagger-config"
-  ## Issue when trying to delete the statefulset https://github.com/kubernetes/kubernetes/issues/59867 Bug car pas même version de kubectl client - seveur
-  # create swagger configMap
-  - "oc create configmap swagger-config --from-file=oas/api-doc/"
-  # create new pods
-  - "oc create -f k8s/tsaas-backend-statefulset.yml"
-  - "oc get routes $APP 2> /dev/null || oc expose service $APP --hostname=$APP_HOST"
-  - "oc create -f k8s/tsaas-swagger-ui-deployment.yml"
-  - "oc get routes $APP_SWAGGER 2> /dev/null || oc expose service $APP_SWAGGER --hostname=$APP_SWAGGER_HOST"
-  tags:
-  - docker
+  <<: *deploy
   variables:
     PROJECT: tsaas-prod
     APP: tsaas-backend

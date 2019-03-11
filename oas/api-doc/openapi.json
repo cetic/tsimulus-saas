@@ -11,13 +11,17 @@
       "description": "prod-online"
     },
     {
-      "url": "http://localhost:8080",
-      "description": "local"
+      "url": "http://tsaas-dev-api.openshift.ext.cetic.be",
+      "description": "dev-online"
+    },
+    {
+      "url": "http://192.168.99.100:31157",
+      "description": "minikube"
     },
     {
 
-      "url": "http://tsaas-api.openshift.ext.cetic.be",
-      "description": "dev-online"
+      "url": "localhost:8080",
+      "description": "local"
     }
   ],
   "paths": {

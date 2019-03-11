@@ -9,7 +9,7 @@ spec:
     targetPort: 8080
   selector:
     run: tsaas-swagger-ui
-  clusterIP: None
+  type: NodePort
 ---
 kind: Deployment
 apiVersion: apps/v1beta1

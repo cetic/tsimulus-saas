@@ -74,7 +74,7 @@ class TsimulusIterator(val config: TsimulusIterator.TsimulusStreamConfig) extend
 
   override val dropBeforeNow: Boolean = config.speed == Realtime
 
-  val iterator: Iterator[(Long, String)] = makeIterator
+  var iterator: Iterator[(Long, String)] = makeIterator
 
 
   override def computeNextDelay(current: Option[(Long, String)], next: Option[(Long, String)]): FiniteDuration = {

@@ -75,9 +75,9 @@ class WebsocketFactory(implicit val system: ActorSystem, implicit val materializ
     val response = getOrCreateWebsocketHandler(wsId).websocketActor.ask(msg)(Timeout(3.seconds))
       .map {
         case StreamingStarting => HttpResponse(StatusCodes.Accepted,
-          entity = s"""{"msg":"Streaming ${if (once) "valid" else "starting"}"}"""")
+          entity = s"""{"msg":"Streaming ${if (once) "valid" else "starting"}"}""")
         case StreamingNotStarted(t) => HttpResponse(StatusCodes.InternalServerError,
-          entity = s"""{"msg":"Streaming could not start because of ${t.getMessage}"}"""")
+          entity = s"""{"msg":"Streaming could not start because of ${t.getMessage}"}""")
         case EmptyStreamConfiguration => HttpResponse(StatusCodes.RetryWith,
           entity = """{"msg":"Missing stream configuration. Retry after posting a configuration"}""")
         case m =>

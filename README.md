@@ -11,8 +11,8 @@ The aim of this work is to provide a self service that showcases TSimulus capabi
 
 The project aims at building a REST API in front of the [TSimulus](https://github.com/cetic/TSimulus) framework, and a set of configurable websocket routes to consume the Tsimulus stream.
 
-* The REST API is available on OpenShift at http://tsaas-api.openshift.ext.cetic.be/
-* Swagger Specs for the TSAAS API is available at http://tsaas-swagger-ui.openshift.ext.cetic.be
+* The REST API is available on OpenShift at http://tsaas-prod-api.openshift.ext.cetic.be/
+* Swagger Specs for the TSAAS API is available at http://tsaas-prod-swagger-ui.openshift.ext.cetic.be or at https://tsaas.cetic.be
 
 The project is strucured as a sbt multiproject, each part are runnable as standalone and the top level project coordinates a complete deployment and coordination of each parts.
 In the following it is assumed that sbt is installed in your system.

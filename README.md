@@ -301,6 +301,8 @@ The TSimulus project provides tools for specifying the shape of a time series (g
 
 ## 2. Technical specifications
 
+Diagram sources are "here":https://drive.google.com/file/d/1rnZyI9u_A6-WpI8hoYdyxOqa6jFwWeNK/view?usp=sharing (draw.io format)
+
 ### 2.1. Logical view
 
 ![](doc/architecture/logical_view.png)

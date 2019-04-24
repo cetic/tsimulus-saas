@@ -20,14 +20,14 @@ In the following it is assumed that sbt is installed in your system.
 ## Sub-Projects
 ### Tsimulus backend
 
-The backend implements the core logic for the stream handling. 
+The backend implements the core logic for the stream handling.
 It includes
  - wrapping the [TSimulus](https://github.com/cetic/TSimulus) for generating streams,
  - exposing a configuration and control REST API,
  - exposing websocket routes fed by outputs of the generator
  - handling the timing of data injection into the websockets.
  - processing templates for custom rendering of the generated data.
- 
+
 ### 0. Getting started
 
 #### 0.1. Prerequisites
@@ -46,10 +46,10 @@ Clone this repository
 git clone git@git.cetic.be:TSimulus/tsimulus-saas.git
 ```
 
-In order to run the backend server, log into the project directory and run 
+In order to run the backend server, log into the project directory and run
 ````sh
 sbt run
-```` 
+````
 or from the root project, run
 ````sh
 sbt backend/run
@@ -66,7 +66,7 @@ vagrant ssh
 
 Go into your shared `/vagrant` folder.
 
-Then, run each line in a new terminal. 
+Then, run each line in a new terminal.
 
 ````
 sbt backend/run
@@ -74,7 +74,7 @@ sbt backend/run
 
 Go to [localhost:9000](http://localhost:9000) and enjoy the frontend.
 
-The `/vagrant` folder in the VM is shared with the folder where the `Vagrantfile` is on the host computer. 
+The `/vagrant` folder in the VM is shared with the folder where the `Vagrantfile` is on the host computer.
 
 ### 0.3. Local development environment with Minikube
 
@@ -94,7 +94,7 @@ Start Minikube:
  minikube start --cpus 4 --memory 8192 --insecure-registry="nexus.ext.cetic.be:8083"
 ```
 
-To get the Kubernetes dashboard, type: `minikube dashboard` 
+To get the Kubernetes dashboard, type: `minikube dashboard`
 
 **Add a secret, so you can pull Docker images from Nexus: for the password (See Secret Variables in Gitlab: Settings > CI/CD > Variables > Nexus Password)**
 
@@ -151,9 +151,9 @@ oc create secret docker-registry docker-creds --docker-server=nexus.ext.cetic.be
 
 For Swagger Docker Image:
 
-The default openshift security policy blocks containers from performing setuid and setgid operations. (from issue: https://github.com/openshift/origin/issues/13443) 
+The default openshift security policy blocks containers from performing setuid and setgid operations. (from issue: https://github.com/openshift/origin/issues/13443)
 We need to grant that to our project:
- 
+
 * https://docs.openshift.org/latest/admin_guide/manage_scc.html#enable-dockerhub-images-that-require-root
 
 ```
@@ -181,28 +181,28 @@ The websockets are exposed at the following URL:
 ws://your.domain.be/socket/<UUID>
 ```
 where <UUID> is a UUID.
- 
- 
+
+
 The websocket handlers are built on the fly, when one of the two following condition is met:
 
   - A user connects to a websocket route:
   the server will create a stream with the uuid provided in the socket route.
-  - A user posts a configuration: 
+  - A user posts a configuration:
     - Letting the server define a socket id
     - choosing socket id. In this case, successive posts will update the configuration.
-  
-The configuration routes provide a CRUD api to manage the stream configurations, 
-the control API exposes a set of action to manage the stream consuption. 
+
+The configuration routes provide a CRUD api to manage the stream configurations,
+the control API exposes a set of action to manage the stream consuption.
 These APIs are documented in the next subproject, exposing a comoplete Open Api Specification and an API explorer.
 
 ### 0.4. Stream configuration
 
-A stream configuration consists in 
+A stream configuration consists in
   - A Tsimulus configuration
-  - A consumption speed 
+  - A consumption speed
   - A template
   - A type variable, set to "tsimulus" for tsimulus streams.
-  
+
 The stream configuation is to be sent in a json object to the stream configuration api:
 ```json
 {
@@ -212,7 +212,7 @@ The stream configuation is to be sent in a json object to the stream configurati
   "type": "tsimulus"
 }
 ```
-  
+
 ### 0.5. Tsimulus configuration
 Please refer to the official [Tsimulus documentation](https://tsimulus.readthedocs.io/en/latest/) for proper formatting.    
 
@@ -227,7 +227,7 @@ The template object includes has the schema:
   "valueVariavle": "string"
 }
 ````
-The template string is processed by the [Apache FreeMarker](http://www.freemarker.org) engine. 
+The template string is processed by the [Apache FreeMarker](http://www.freemarker.org) engine.
 We refer the user to the official documentation.
 
 We additionally provide 3 custom functions in the template :
@@ -235,26 +235,26 @@ We additionally provide 3 custom functions in the template :
   This function converts each numbers to 32 bits floats and converts the resulting byte array to base 64, using **little** or **big** endianness.   
   - replicate(n, x): converts the value to a list of size n with the same value x.
   - noise(?std, x): adds random noise to x. For numeric values of x, gaussian noise is added, with a null expectation value and a standrad deviation given by std.
-  
+
 The timeVariable, nameVariable and valueVariable variables represents respectively the names of the time, name and value variables in the template.   
 
 
 #### 0.5.2. Speed
 The speed parameter can be a string or a number.
-Each elements of a tsimulus stream comes with a timestamp and a value. 
-The stream can be consumed in three different ways: 
-  - realtime: 
+Each elements of a tsimulus stream comes with a timestamp and a value.
+The stream can be consumed in three different ways:
+  - realtime:
   The value is pushed in the websocket when the present datetime given by the server corresponds to the generated timestamp.    
-  - Speed factor: 
+  - Speed factor:
   The present datetime is ignored, only the time interval for the next element is taken into consideration.
   In this mode, the first element of the stream is emitted when the stream is started. The next element is emitted after a delay given by
-  
+
   ```
   Delay = (t_1-t_0)/speed_factor
   ```
   - Infinite speed: The stream is consumed at once.  
 
-The speed parameter should be configured as 
+The speed parameter should be configured as
 ````json
 {"speed": "realtime"}
 ````
@@ -263,7 +263,7 @@ for the realtime mode,
 ````json
 {"speed": "number"}
 ````
-for the speed factor mode and 
+for the speed factor mode and
 ````json
 {"speed": "inf"}
 ````
@@ -283,7 +283,16 @@ To be done
 
 
 ## Top level project
-???   
+
+More generally, Tsaas could be an element that would constitute a SaaS offer at Cetic.
+
+This SaaS platform would allow customers / partners / anonymous to directly test / use our services and, on our side, we would have a global view of the use of our services.
+
+This platform allows to have paid services, free services, setting a bandwidth per user, ...
+
+Here is an idea of the infrastructure that could be deployed internally.
+
+![](doc/architecture/tsaas-ui-SaaS_at_Cetic.png)
 
 ## 1. Functional specifications
 
@@ -312,7 +321,7 @@ Diagram sources are "here":https://drive.google.com/file/d/1rnZyI9u_A6-WpI8hoYdy
 * **tsimulus-backend**: this service uses the TSimulus library to generate timeseries.
 * **web frontend** provides a web interface to query the service and display the results to humans.
 * **API** serves the backend service to programmatic clients and the web frontend.
-* **api doc** provides 
+* **api doc** provides
   * documentation for the API (endpoints, examples, errors, ...).
   * a console to test the API.
   * autogenerated API clients in various languages.
@@ -362,9 +371,9 @@ If using git: simplified version of [Git Flow](http://nvie.com/posts/a-successfu
 
 Using Swagger-UI docker image: https://hub.docker.com/r/swaggerapi/swagger-ui/
 
-The default openshift security policy blocks containers from performing setuid and setgid operations. (from issue: https://github.com/openshift/origin/issues/13443) 
+The default openshift security policy blocks containers from performing setuid and setgid operations. (from issue: https://github.com/openshift/origin/issues/13443)
 We need to grant that to our project:
- 
+
 * https://docs.openshift.org/latest/admin_guide/manage_scc.html#enable-dockerhub-images-that-require-root
 
 #### 2.4.4. Testing

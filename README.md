@@ -1,18 +1,11 @@
 # TSimulus As A Service : TSAAS
 
-[![pipeline status](https://git.cetic.be/TSimulus/tsimulus-saas/badges/develop/pipeline.svg)](https://git.cetic.be/TSimulus/tsimulus-saas/commits/develop)
-
-This repository is a rework of https://git.cetic.be/TSimulus/tsimulus-cluster
-
 ## Goal
 
 This project contains the high level documentation for the TSimulus SaaS project.
 The aim of this work is to provide a self service that showcases TSimulus capabilities.
 
 The project aims at building a REST API in front of the [TSimulus](https://github.com/cetic/TSimulus) framework, and a set of configurable websocket routes to consume the Tsimulus stream.
-
-* The REST API is available on OpenShift at http://tsaas-prod-api.openshift.ext.cetic.be/
-* Swagger Specs for the TSAAS API is available at http://tsaas-prod-swagger-ui.openshift.ext.cetic.be or at https://tsaas.cetic.be
 
 The project is strucured as a sbt multiproject, each part are runnable as standalone and the top level project coordinates a complete deployment and coordination of each parts.
 In the following it is assumed that sbt is installed in your system.
@@ -84,8 +77,6 @@ The `/vagrant` folder in the VM is shared with the folder where the `Vagrantfile
 * Install Kubectl: https://kubernetes.io/docs/tasks/tools/install-kubectl/
 * Install Minikube: https://github.com/kubernetes/minikube/releases
 
-**You need to be in the CETIC network to access the Nexus Repository! (Use your VPN, ...)**
-
 #### 0.3.2. Local development
 
 Start Minikube:
@@ -96,11 +87,7 @@ Start Minikube:
 
 To get the Kubernetes dashboard, type: `minikube dashboard`
 
-**Add a secret, so you can pull Docker images from Nexus: for the password (See Secret Variables in Gitlab: Settings > CI/CD > Variables > Nexus Password)**
-
-```
-kubectl create secret docker-registry docker-creds --docker-server=nexus.ext.cetic.be:8083 --docker-username=nexus-gitlab-ci --docker-password=$SECRETVARCICD --docker-email=alexandre.nuttinck@cetic.be
-```
+TODO: helm scripts to deploy tsimulus-saas + swagger-ui
 
 Launch the script:
 
@@ -137,51 +124,13 @@ cd k8s
 ./clean-all.sh
 ```         
 
-### 0.4. development/prod environment with OpenShift    
-
-TODO
-
-For Nexus:
-
-**Add a secret, so OpenShift can pull Docker images from Nexus: for the password (See Secret Variables in Gitlab: Settings > CI/CD > Variables > Nexus Password)**
-
-```
-oc create secret docker-registry docker-creds --docker-server=nexus.ext.cetic.be:8083 --docker-username=nexus-gitlab-ci --docker-password=$SECRETVARCICD --docker-email=alexandre.nuttinck@cetic.be
-```
-
-For Swagger Docker Image:
-
-The default openshift security policy blocks containers from performing setuid and setgid operations. (from issue: https://github.com/openshift/origin/issues/13443)
-We need to grant that to our project:
-
-* https://docs.openshift.org/latest/admin_guide/manage_scc.html#enable-dockerhub-images-that-require-root
-
-```
-oc adm policy add-scc-to-user anyuid system:serviceaccount:tsaas-dev:default
-```
-
-Endpoints:
-
-#### 0.4.1. Production environment
-
-PROD: (master branch)
-* [TSAAS Prod backend](http://tsaas-prod-api.openshift.ext.cetic.be)
-* [TSAAS Prod Swagger](http://tsaas-prod-swagger-ui.openshift.ext.cetic.be)
-
-#### 0.4.2. Development environment
-
-DEV: (develop branch)
-* [TSAAS Dev backend](http://tsaas-dev-api.openshift.ext.cetic.be)
-* [TSAAS Dev Swagger](http://tsaas-dev-swagger-ui.openshift.ext.cetic.be)
-
-### 0.5. Creating a websocket route
+### 0.4. Creating a websocket route
 
 The websockets are exposed at the following URL:
 ```
 ws://your.domain.be/socket/<UUID>
 ```
 where <UUID> is a UUID.
-
 
 The websocket handlers are built on the fly, when one of the two following condition is met:
 
@@ -195,7 +144,7 @@ The configuration routes provide a CRUD api to manage the stream configurations,
 the control API exposes a set of action to manage the stream consuption.
 These APIs are documented in the next subproject, exposing a comoplete Open Api Specification and an API explorer.
 
-### 0.4. Stream configuration
+### 0.5. Stream configuration
 
 A stream configuration consists in
   - A Tsimulus configuration
@@ -213,10 +162,10 @@ The stream configuation is to be sent in a json object to the stream configurati
 }
 ```
 
-### 0.5. Tsimulus configuration
+### 0.6. Tsimulus configuration
 Please refer to the official [Tsimulus documentation](https://tsimulus.readthedocs.io/en/latest/) for proper formatting.    
 
-#### 0.5.1. Template
+#### 0.6.1. Template
 
 The template object includes has the schema:
 ````json
@@ -239,7 +188,7 @@ We additionally provide 3 custom functions in the template :
 The timeVariable, nameVariable and valueVariable variables represents respectively the names of the time, name and value variables in the template.   
 
 
-#### 0.5.2. Speed
+#### 0.6.2. Speed
 The speed parameter can be a string or a number.
 Each elements of a tsimulus stream comes with a timestamp and a value.
 The stream can be consumed in three different ways:
@@ -269,30 +218,17 @@ for the speed factor mode and
 ````
 for the infinite speed mode.
 
-### 0.6. API Explorer
+### 0.7. API Explorer
 
-This subproject exposes a Swagger UI is exposed at http://tsaas-swagger-ui.openshift.ext.cetic.be
+This subproject exposes a Swagger UI is exposed .
 The UI documents and allows to test the Configuration and control API described in the previous section.
 
-#### 0.6.1 Getting Started
+#### 0.7.1 Getting Started
 ???
 
 ## Tsaas - Frontend
 
 To be done
-
-
-## Top level project
-
-More generally, Tsaas could be an element that would constitute a SaaS offer at Cetic.
-
-This SaaS platform would allow customers / partners / anonymous to directly test / use our services and, on our side, we would have a global view of the use of our services.
-
-This platform allows to have paid services, free services, setting a bandwidth per user, ...
-
-Here is an idea of the infrastructure that could be deployed internally.
-
-![](doc/architecture/tsaas-ui-SaaS_at_Cetic.png)
 
 ## 1. Functional specifications
 
@@ -365,16 +301,11 @@ If using git: simplified version of [Git Flow](http://nvie.com/posts/a-successfu
 
 * server provisioning (creation of VM's and software installation): [Ansible](https://www.ansible.com)
 * local dev environment: Vagrant+Virtualbox using the Ansible provisioning script
-* Gitlab CI orchestrates the workflow. See the "gitlab-ci" file: https://git.cetic.be/TSimulus/tsimulus-cluster/blob/develop/.gitlab-ci.yml
+* Old Sample for Gitlab CI orchestrates the workflow. See the "gitlab-ci" file: https://git.cetic.be/TSimulus/tsimulus-cluster/blob/develop/.gitlab-ci.yml
 
 #### 2.4.3. Swagger
 
 Using Swagger-UI docker image: https://hub.docker.com/r/swaggerapi/swagger-ui/
-
-The default openshift security policy blocks containers from performing setuid and setgid operations. (from issue: https://github.com/openshift/origin/issues/13443)
-We need to grant that to our project:
-
-* https://docs.openshift.org/latest/admin_guide/manage_scc.html#enable-dockerhub-images-that-require-root
 
 #### 2.4.4. Testing
 
@@ -385,14 +316,6 @@ TBD
 ? load testing
 ? ...
 
-### 3. Fridge
-
-* doc add insecure registry to openshift https://docs.okd.io/3.9/dev_guide/managing_images.html#insecure-registries
-* https://docs.openshift.com/container-platform/3.5/dev_guide/managing_images.html#allowing-pods-to-reference-images-from-other-secured-registries
-* http://v1.uncontained.io/playbooks/continuous_delivery/external-docker-registry-integration.html
-* allow publishing on Nexus
-* pulling images from OpenShift: https://docs.openshift.com/enterprise/3.0/dev_guide/image_pull_secrets.html
-
 ## Licence
 
-TSimulus is release under the [Apache license](http://www.apache.org/licenses/) (version 2).
+TSimulus SaaS is release under the [Apache license](http://www.apache.org/licenses/) (version 2).

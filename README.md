@@ -103,7 +103,7 @@ helm repo update
 # install/upgrade tsaas
 helm upgrade --install tsaas cetic/tsaas
 # install/upgrade swaggerui
-helm upgrade --install swaggerui cetic/swaggerui -f ./helm/swaggerui/values.yaml
+helm upgrade --install swaggerui cetic/swaggerui -f ./helm/swaggerui/values.yaml --set swaggerui.server.url=$(minikube service tsaas --url)
 ```
 
 To access the different services, type

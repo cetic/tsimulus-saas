@@ -67,63 +67,57 @@ Then, run each line in a new terminal.
 sbt backend/run
 ````
 
-Go to [localhost:9000](http://localhost:9000) and enjoy the frontend.
-
 The `/vagrant` folder in the VM is shared with the folder where the `Vagrantfile` is on the host computer.
 
-### 0.3. Local development environment with Minikube
+### 0.3. Local development environment with [Minikube](https://github.com/kubernetes/minikube)
 
-#### 0.3.1. Install Minikube
+#### 0.3.1. Prerequisites
 
-* Install VirtualBox: https://www.virtualbox.org/wiki/Downloads
-* Install Kubectl: https://kubernetes.io/docs/tasks/tools/install-kubectl/
-* Install Minikube: https://github.com/kubernetes/minikube/releases
+* a virtualisation solution (for example [VirtualBox](https://www.virtualbox.org/wiki/Downloads) or KVM)
+* [Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/), the Kubernetes CLI
+* [Minikube](https://github.com/kubernetes/minikube/releases), a local Kubernetes cluster
+* the [Helm client](https://helm.sh/docs/using_helm/#installing-helm)
 
-#### 0.3.2. Local development
+#### 0.3.2. Local development/deployment
 
 Start Minikube:
 
 ```
- minikube start --cpus 4 --memory 8192 --insecure-registry="nexus.ext.cetic.be:8083"
+minikube start
 ```
 
-To get the Kubernetes dashboard, type: `minikube dashboard`
+To get the Kubernetes dashboard, type:
 
-TODO: helm scripts to deploy tsimulus-saas + swagger-ui
-
-Launch the script:
-
-```
-cd k8s
-./deploy-tsaas.sh
+```bash
+minikube dashboard
 ```
 
-Access the tsaas backend in your browser, type:
+Launch the Helm script, this will deploy all the TSimulus-saas services (TSimulus microservice and Swagger UI) on the Minikube cluster (and may take some time).
 
 ```
-minikube service tsaas-backend
+# init helm
+helm init --history-max 200 --upgrade
+# add helm repos
+helm repo add cetic https://cetic.github.io/helm-charts/
+helm repo update
+# install/upgrade tsaas
+helm upgrade --install tsaas cetic/tsaas
+# install/upgrade swaggerui
+helm upgrade --install swaggerui cetic/swaggerui -f ./helm/swaggerui/values.yaml
 ```
 
-Retrieve the url, and update the server URL of minishift of the JSON file: /oas/api-doc/openapi.json. (Should be automated in the future).
-
-Then launch the swagger UI:
+To access the different services, type
 
 ```
-cd k8s
-./deploy-tsaas-swagger-ui.sh
+minikube service list
 ```
 
-Access the swagger service and choose the minikube server on the swagger UI:
+
+To delete the tsaas stack, type:   
 
 ```
-minikube service tsaas-swagger-ui
-```
-
-To delete the tsimulus stack, type:   
-
-```
-cd k8s
-./clean-all.sh
+helm delete --purge tsaas
+helm delete --purge swaggerui
 ```         
 
 ### 0.4. Creating a websocket route

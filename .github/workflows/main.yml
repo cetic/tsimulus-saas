@@ -7,16 +7,10 @@ jobs:
       runs-on: ubuntu-latest
       steps:
       - uses: actions/checkout@v1
-      - name: Build tsimulus-saas
-        uses: agemooij/github-actions-sbt@master
-        with:
-          args: clean package
       - name: Create tsimulus-saas Dockerfile
         uses: agemooij/github-actions-sbt@master
         with:
           args: "backend/docker:stage"
-      - name : Get working directory
-        run: pwd; ls -a; cd backend; ls -a; cd target; ls -a; cd docker; ls -a; cd stage; ls -a
       - name: Publish to Docker Registry        
         uses: automada/Publish-Docker-Github-Action@master
         with:

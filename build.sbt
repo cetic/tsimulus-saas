@@ -7,11 +7,11 @@ val commonSettings = Seq(
 			s"$sha".substring(0, 8)
   },
   // docker info
-  dockerRepository :=  Some("nexus.ext.cetic.be:8083"),
+  dockerRepository :=  Some("ceticasbl/tsimulus-saas"),
   dockerBaseImage := "openjdk:8",
   dockerUpdateLatest := true,
   dockerAlias := DockerAlias(dockerRepository.value, dockerUsername.value, name.value, git.formattedShaVersion.value),
-  dockerUsername := Some("cetic")
+  dockerUsername := Some("ceticasbl")
 )
 
 lazy val backend = (project in file("backend"))

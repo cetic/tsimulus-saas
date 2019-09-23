@@ -46,9 +46,3 @@ spec:
         - name: swagger-config
           configMap:
             name: swagger-config
-            #items:
-            #- key: /api-doc/openapi.json
-            #  path: /api-doc/openapi.json
-
-#kubectl create configmap swagger-config --from-file=api-doc/
-

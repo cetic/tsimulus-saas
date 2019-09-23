@@ -17,8 +17,6 @@ metadata:
   labels:
     run: tsaas-backend
   name: tsaas-backend
-  annotations:
-    openshift.io/image.insecureRepository: "true"
 spec:
   serviceName: tsaas-backend
   podManagementPolicy: "Parallel"
@@ -33,7 +31,7 @@ spec:
     spec:
       containers:
       - name: tsaas-backend
-        image: nexus.ext.cetic.be:8083/cetic/tsaas-backend
+        image: ceticasbl/tsimulus-saas
         stdin: true
         tty: true
         env:
@@ -56,6 +54,3 @@ spec:
         ports:
         - containerPort: 8080
           protocol: TCP
-      # Needed to pull images on the Nexus Repository
-      imagePullSecrets:
-      - name: docker-creds

@@ -1,5 +1,7 @@
 # TSimulus As A Service : TSAAS
 
+[![Actions Status](https://github.com/cetic/tsimulus-saas/workflows/Publish/badge.svg)](https://github.com/cetic/tsimulus-saas/actions)
+
 ## Goal
 
 This project contains the high level documentation for the TSimulus SaaS project.

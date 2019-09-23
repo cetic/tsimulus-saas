@@ -92,6 +92,8 @@ To get the Kubernetes dashboard, type:
 minikube dashboard
 ```
 
+![](/doc/images/minikube-dashboard.png)
+
 Launch the Helm script, this will deploy all the TSimulus-saas services (TSimulus microservice and Swagger UI) on the Minikube cluster (and may take some time).
 
 ```
@@ -112,6 +114,9 @@ To access the different services, type
 minikube service list
 ```
 
+You should now be able to access to the swaggerui:
+
+![](/doc/images/tsaas-swaggerui.png)
 
 To delete the tsaas stack, type:   
 

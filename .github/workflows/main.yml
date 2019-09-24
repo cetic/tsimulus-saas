@@ -12,12 +12,11 @@ jobs:
         with:
           args: "backend/docker:stage"
       - name: Publish to Docker Registry        
-        uses: automada/Publish-Docker-Github-Action@master
+        uses: elgohr/Publish-Docker-Github-Action@master
         with:
           name: ceticasbl/tsimulus-saas
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+          workdir: backend/target/docker/stage/
           snapshot: true
           dockerfile: Dockerfile
-        env:
-          INPUT_WORKDIR: backend/target/docker/stage/

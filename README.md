@@ -1,6 +1,6 @@
 # TSimulus As A Service : TSAAS
 
-[![Actions Status](https://github.com/cetic/tsimulus-saas/workflows/Publish/badge.svg)](https://github.com/cetic/tsimulus-saas/actions)
+![](https://github.com/cetic/tsimulus-saas/workflows/Publish/badge.svg) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## Goal
 

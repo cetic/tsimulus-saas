@@ -1,6 +1,7 @@
 # TSimulus As A Service : TSAAS
 
 ![](https://github.com/cetic/tsimulus-saas/workflows/Publish/badge.svg) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fcetic%2Ftsimulus-saas.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fcetic%2Ftsimulus-saas?ref=badge_shield)
 
 ## Goal
 
@@ -320,3 +321,6 @@ TBD
 ## Licence
 
 TSimulus SaaS is release under the [Apache license](http://www.apache.org/licenses/) (version 2).
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fcetic%2Ftsimulus-saas.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fcetic%2Ftsimulus-saas?ref=badge_large)

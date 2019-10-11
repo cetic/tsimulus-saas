@@ -144,7 +144,7 @@ The websocket handlers are built on the fly, when one of the two following condi
 
 The configuration routes provide a CRUD api to manage the stream configurations,
 the control API exposes a set of action to manage the stream consuption.
-These APIs are documented in the next subproject, exposing a comoplete Open Api Specification and an API explorer.
+These APIs are documented in the next subproject, exposing a complete Open Api Specification and an API explorer.
 
 ### 0.5. Stream configuration
 
@@ -321,6 +321,5 @@ TBD
 ## Licence
 
 TSimulus SaaS is release under the [Apache license](http://www.apache.org/licenses/) (version 2).
-
 
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fcetic%2Ftsimulus-saas.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fcetic%2Ftsimulus-saas?ref=badge_large)

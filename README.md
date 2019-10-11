@@ -1,6 +1,6 @@
 # TSimulus As A Service
 
-![](https://github.com/cetic/tsimulus-saas/workflows/Publish/badge.svg) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+![](https://github.com/cetic/tsimulus-saas/workflows/publish/badge.svg) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fcetic%2Ftsimulus-saas.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fcetic%2Ftsimulus-saas?ref=badge_shield)
 
 <p align="center" style="width: 50%; height: 200px;">

@@ -1,6 +1,6 @@
 val commonSettings = Seq(
   organization := "cetic",
-  version := "1.0.0",
+  version := "0.1.7",
   scalaVersion := "2.12.6",
   // git info
   git.formattedShaVersion := git.gitHeadCommit.value map { sha =>

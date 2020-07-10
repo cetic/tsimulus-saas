@@ -17,7 +17,7 @@ libraryDependencies := Seq(
   "com.typesafe.akka" %% "akka-http-spray-json" % "10.1.5",
   "com.typesafe.akka" %% "akka-http" % "10.1.5",
   "com.typesafe.akka" %% "akka-stream" %  "2.5.13",
-  //"be.cetic" %% "rts-gen" % "0.1.13",
+  "be.cetic" %% "rts-gen" % "0.1.13",
   "org.scalatest" %% "scalatest" % "3.0.0" % "test",
   "org.freemarker" % "freemarker" % "2.3.28",
   "javax.ws.rs" % "javax.ws.rs-api" % "2.0.1",

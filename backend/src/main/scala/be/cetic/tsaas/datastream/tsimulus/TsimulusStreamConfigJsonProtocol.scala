@@ -2,7 +2,7 @@ package be.cetic.tsaas.datastream.tsimulus
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import be.cetic.tsaas.datastream.tsimulus.TsimulusIterator._
-import be.cetic.rtsgen.config.Configuration
+import be.cetic.tsimulus.config.Configuration
 import spray.json.{DefaultJsonProtocol, JsNumber, JsObject, JsString, JsValue, RootJsonFormat, _}
 
 trait TsimulusStreamConfigJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {

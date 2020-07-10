@@ -1,7 +1,7 @@
 package be.cetic.tsaas.datastream.tsimulus
 
-import be.cetic.rtsgen.Utils
-import be.cetic.rtsgen.config.Configuration
+import be.cetic.tsimulus.Utils
+import be.cetic.tsimulus.config.Configuration
 import be.cetic.tsaas.datastream.TimedIterator
 import be.cetic.tsaas.datastream.tsimulus.TsimulusIterator.{InfiniteSpeed, Realtime, SpeedFactor}
 import be.cetic.tsaas.utils.templates.FreeMarkerParser

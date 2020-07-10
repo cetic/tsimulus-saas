@@ -15,7 +15,6 @@ object Dependencies {
     "com.typesafe.akka" %% "akka-http-spray-json" % "10.1.5",
     "com.typesafe.akka" %% "akka-http" % "10.1.5",
     "com.typesafe.akka" %% "akka-stream" %  Version.akka,
-    "be.cetic" %% "rts-gen" % "0.1.13",
     "org.scalatest" %% "scalatest" % "3.0.0" % "test",
     "org.freemarker" % "freemarker" % "2.3.28",
     "javax.ws.rs" % "javax.ws.rs-api" % "2.0.1",

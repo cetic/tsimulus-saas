@@ -4,7 +4,7 @@
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fcetic%2Ftsimulus-saas.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fcetic%2Ftsimulus-saas?ref=badge_shield)
 
 <p align="center" style="width: 50%; height: 200px;">
-  <a href="https://rts-gen.readthedocs.io"><img src="doc/images/TSimulus-logo.png" height="200"/></a>
+  <a href="https://tsimulus.readthedocs.io"><img src="doc/images/TSimulus-logo.png" height="200"/></a>
 </p>
 
 ## Goal

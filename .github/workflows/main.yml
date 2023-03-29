@@ -15,7 +15,7 @@ jobs:
         id: get_version
         run: echo ::set-env name=RELEASE_VERSION::$(cat build.sbt | grep "version :=" | sed 's/.$//' | cut -f 5 -d " " | tr -d '"')
       - name: Publish to Docker Registry        
-        uses: elgohr/Publish-Docker-Github-Action@master
+        uses: elgohr/Publish-Docker-Github-Action@v5
         with:
           name: ceticasbl/tsimulus-saas
           username: ${{ secrets.DOCKER_USERNAME }}
